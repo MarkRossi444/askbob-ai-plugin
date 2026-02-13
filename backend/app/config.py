@@ -23,9 +23,9 @@ class Settings(BaseSettings):
     # Rate limiting
     rate_limit_per_minute: int = 20
 
-    # CORS — comma-separated origins, or "*" for development
-    # For production, add your deployed frontend URL (e.g. https://wiseoldman.ai)
-    allowed_origins: str = "http://localhost:8001,http://127.0.0.1:8001,http://localhost:3000,http://127.0.0.1:3000"
+    # CORS — comma-separated origins, or "*" for open access
+    # For production, replace with specific domains (e.g. "https://wiseoldman.ai")
+    allowed_origins: str = "*"
 
     class Config:
         env_file = ".env"

@@ -76,8 +76,8 @@ class EmbeddingClient:
 
     async def _embed_batch(self, texts: list[str]) -> list[list[float]]:
         """Send a batch of texts to the embedding API."""
-        # Truncate very long texts (model max is ~8191 tokens)
-        truncated = [t[:32000] for t in texts]
+        # Truncate to ~7500 tokens worth of chars (conservative: ~4 chars/token)
+        truncated = [t[:30000] for t in texts]
 
         payload = {
             "input": truncated,
@@ -100,6 +100,15 @@ class EmbeddingClient:
                     wait = 2 ** attempt * 5
                     logger.warning(f"Rate limited. Waiting {wait}s...")
                     await asyncio.sleep(wait)
+                elif e.response.status_code == 400 and "maximum context length" in (e.response.text or ""):
+                    # Token limit exceeded — aggressively truncate and retry once
+                    logger.warning(f"Token limit hit, truncating batch texts to 20k chars")
+                    truncated = [t[:20000] for t in texts]
+                    payload["input"] = truncated
+                    # Fall through to retry
+                    if attempt == 2:
+                        # Last attempt: embed one at a time, skip failures
+                        return await self._embed_individually(texts)
                 else:
                     logger.error(f"Embedding API error: {e.response.text}")
                     raise
@@ -111,3 +120,23 @@ class EmbeddingClient:
                     raise
 
         return []
+
+    async def _embed_individually(self, texts: list[str]) -> list[list[float]]:
+        """Fallback: embed texts one at a time, returning zero vectors for failures."""
+        results = []
+        for text in texts:
+            try:
+                truncated = text[:20000]
+                payload = {
+                    "input": [truncated],
+                    "model": self.model,
+                    "dimensions": EMBEDDING_DIMENSION,
+                }
+                response = await self.client.post(OPENAI_API_URL, json=payload)
+                response.raise_for_status()
+                data = response.json()
+                results.append(data["data"][0]["embedding"])
+            except Exception as e:
+                logger.warning(f"Skipping chunk ({len(text)} chars): {e}")
+                results.append([0.0] * EMBEDDING_DIMENSION)
+        return results

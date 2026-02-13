@@ -29,6 +29,7 @@ import argparse
 import asyncio
 import logging
 import os
+import shutil
 import sys
 import time
 from datetime import datetime, timezone, timedelta
@@ -54,6 +55,32 @@ logger = logging.getLogger("scraper")
 
 # Process pages in batches of this size for concurrency
 BATCH_SIZE = 10
+
+
+def progress_bar(current: int, total: int, *, rate: float = 0, eta_min: float = 0, label: str = ""):
+    """Print a terminal progress bar that overwrites the current line."""
+    if total == 0:
+        return
+    term_width = shutil.get_terminal_size((80, 20)).columns
+    pct = current / total
+    pct_str = f"{pct * 100:5.1f}%"
+    stats = f" {current:,}/{total:,}"
+    if rate > 0:
+        stats += f" [{rate:.1f}/s, ETA {eta_min:.0f}m]"
+    if label:
+        stats = f" {label}{stats}"
+    # Calculate bar width from remaining space: "  [=====>    ] 100.0% stats"
+    overhead = 2 + 1 + 1 + 1 + len(pct_str) + len(stats)  # spacing + brackets + pct + stats
+    bar_width = max(10, term_width - overhead)
+    filled = int(bar_width * pct)
+    arrow = ">" if filled < bar_width else ""
+    bar = "=" * max(0, filled - 1) + arrow + " " * (bar_width - filled)
+    line = f"\r  [{bar}] {pct_str}{stats}"
+    sys.stdout.write(line)
+    sys.stdout.flush()
+    if current >= total:
+        sys.stdout.write("\n")
+        sys.stdout.flush()
 
 
 async def process_page(wiki, db, embed_client, page_info):
@@ -190,10 +217,12 @@ async def full_scrape(db: WikiDatabase, skip_embed: bool = False, resume: bool =
                     "full", str(absolute_processed), total, absolute_processed, "in_progress"
                 )
 
+            elapsed = time.time() - start_time
+            rate = processed / elapsed if elapsed > 0 else 0
+            eta = (total_remaining - processed) / rate if rate > 0 else 0
+            progress_bar(absolute_processed, total, rate=rate, eta_min=eta / 60, label="Scraping")
+
             if processed % 100 < BATCH_SIZE:
-                elapsed = time.time() - start_time
-                rate = processed / elapsed if elapsed > 0 else 0
-                eta = (total_remaining - processed) / rate if rate > 0 else 0
                 logger.info(
                     f"Progress: {absolute_processed}/{total} "
                     f"({scraped} scraped, {skipped} skipped, {errors} errors) "
@@ -345,10 +374,13 @@ async def embed_only(db: WikiDatabase):
                 remaining = total_unembedded - embedded_total
                 eta = remaining / rate if rate > 0 else 0
 
-                logger.info(
-                    f"Embedded: {embedded_total}/{total_unembedded} "
-                    f"[{rate:.1f} chunks/s, ETA: {eta / 60:.1f}m]"
-                )
+                progress_bar(embedded_total, total_unembedded, rate=rate, eta_min=eta / 60, label="Embedding")
+
+                if embedded_total % 1000 < EMBED_API_BATCH:
+                    logger.info(
+                        f"Embedded: {embedded_total}/{total_unembedded} "
+                        f"[{rate:.1f} chunks/s, ETA: {eta / 60:.1f}m]"
+                    )
 
         elapsed = time.time() - start_time
         logger.info(
@@ -370,6 +402,8 @@ async def show_stats(db: WikiDatabase):
     print(f"  Wiki pages:  {stats['pages']:,}")
     print(f"  Chunks:      {stats['chunks']:,}")
     print(f"  Embeddings:  {stats['embeddings']:,}")
+    if stats['chunks'] > 0:
+        progress_bar(stats['embeddings'], stats['chunks'], label="Coverage")
     print()
 
 
