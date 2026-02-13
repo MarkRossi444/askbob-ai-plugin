@@ -3,10 +3,15 @@ Vector search — embeds a query and finds the most relevant wiki chunks.
 
 Uses the same OpenAI embedding model that was used to embed the wiki,
 then calls pgvector's cosine similarity search via the search_wiki() function.
+
+Search strategy (4 passes):
+  1. Vector similarity (semantic)
+  2. Title-match (keyword) — boosts chunks from pages named in the query
+  3. Cross-reference (2-hop) — follows page references found in initial results
+  4. Merge with boosting: title + section relevance + cross-ref
 """
 
 import logging
-import re
 from dataclasses import dataclass
 
 import httpx
@@ -17,6 +22,11 @@ logger = logging.getLogger(__name__)
 
 OPENAI_API_URL = "https://api.openai.com/v1/embeddings"
 EMBEDDING_DIMENSION = 1536
+
+# Boost constants
+TITLE_BOOST = 0.30      # Chunks from pages whose title appears in the query
+SECTION_BOOST = 0.10     # Extra boost when section header matches query intent
+XREF_BOOST = 0.20        # Chunks from cross-referenced pages (2-hop)
 
 # Maps query keywords → section headers that are likely relevant
 _SECTION_KEYWORDS: dict[str, list[str]] = {
@@ -30,6 +40,7 @@ _SECTION_KEYWORDS: dict[str, list[str]] = {
     "spec": ["special attack", "combat"],
     "stats": ["stats", "bonuses", "combat stats"],
     "price": ["price", "value", "cost", "exchange"],
+    "quest": ["details", "requirements", "rewards", "walkthrough"],
 }
 
 
@@ -75,6 +86,8 @@ class VectorSearch:
                 "Content-Type": "application/json",
             },
         )
+        # Lazy-loaded title index for cross-reference search
+        self._title_index: list[tuple[str, str]] | None = None
 
     async def close(self):
         await self.http_client.aclose()
@@ -93,6 +106,54 @@ class VectorSearch:
         data = response.json()
         return data["data"][0]["embedding"]
 
+    async def _get_title_index(self, conn) -> list[tuple[str, str]]:
+        """Lazy-load wiki page titles for cross-reference lookups.
+
+        Returns list of (title_lower, title_original) sorted by length
+        descending so longer titles match first.
+        """
+        if self._title_index is None:
+            rows = await conn.fetch(
+                "SELECT title FROM wiki_pages WHERE LENGTH(title) >= 6"
+            )
+            titles = [(r["title"].lower(), r["title"]) for r in rows]
+            titles.sort(key=lambda t: len(t[0]), reverse=True)
+            self._title_index = titles
+            logger.info(f"Loaded title index: {len(titles)} titles for cross-ref search")
+        return self._title_index
+
+    def _find_references(
+        self,
+        content: str,
+        query: str,
+        exclude_titles: set[str],
+    ) -> list[str]:
+        """Find wiki page titles mentioned in chunk content.
+
+        Scans the content for page title mentions that aren't already
+        in the query or the exclude set. Used for 2-hop retrieval:
+        if the Barrows gloves page mentions "Recipe for Disaster",
+        we'll fetch RFD chunks too.
+        """
+        content_lower = content.lower()
+        query_lower = query.lower()
+
+        found: list[str] = []
+        found_lower: set[str] = set()
+
+        for title_lower, title_original in self._title_index or []:
+            if title_lower in exclude_titles or title_lower in found_lower:
+                continue
+            if title_lower in query_lower:
+                continue
+            if title_lower in content_lower:
+                found.append(title_original)
+                found_lower.add(title_lower)
+                if len(found) >= 3:
+                    break
+
+        return found
+
     async def search(
         self,
         query: str,
@@ -101,14 +162,12 @@ class VectorSearch:
         game_mode: str | None = None,
     ) -> list[SearchResult]:
         """
-        Hybrid search: combines vector similarity with title matching.
+        Hybrid search with cross-reference following.
 
-        When a user asks about a specific page by name (e.g. "Dragon Slayer II"),
-        pure vector search can miss it because generic "Requirements" sections
-        from other pages score higher. This does three passes:
-          1. Vector similarity search (semantic)
-          2. Title-match search (keyword) — retrieves many chunks from matching pages
-          3. Merge with boosting: title match + section relevance + longest-title priority
+        Pass 1: Vector similarity search (semantic)
+        Pass 2: Title-match search (keyword + section boost)
+        Pass 3: Cross-reference search (2-hop — follows page mentions in results)
+        Then merges all results with boosting.
         """
         # Step 1: Embed the query
         try:
@@ -119,7 +178,7 @@ class VectorSearch:
 
         try:
             async with self.pool.acquire() as conn:
-                # Pass 1: Vector similarity search
+                # ── Pass 1: Vector similarity search ──
                 vector_rows = await conn.fetch(
                     "SELECT * FROM search_wiki($1, $2, $3, $4)",
                     embedding,
@@ -128,9 +187,8 @@ class VectorSearch:
                     game_mode,
                 )
 
-                # Pass 2: Title-match search — find chunks from pages whose
-                # title appears in the query. Retrieve extra chunks (top_k*3)
-                # so we get broader section coverage from the matched page.
+                # ── Pass 2: Title-match search ──
+                # Retrieve extra chunks (top_k*3) for broader section coverage.
                 title_rows = await conn.fetch(
                     """
                     SELECT
@@ -160,14 +218,11 @@ class VectorSearch:
                     top_k * 3,
                 )
 
-                # Collect all matched title names to filter substring collisions
-                # e.g. "Dragon Slayer I" matching inside "Dragon Slayer II"
+                # Filter substring title collisions (e.g. "Dragon Slayer I" inside "Dragon Slayer II")
                 matched_titles: set[str] = set()
                 for row in title_rows:
                     matched_titles.add(row["page_title"].lower())
 
-                # Build set of "shadowed" titles — shorter titles that are
-                # substrings of a longer matched title
                 shadowed: set[str] = set()
                 for t in matched_titles:
                     for other in matched_titles:
@@ -177,28 +232,22 @@ class VectorSearch:
                 # Section relevance keywords from the query
                 section_keywords = _extract_section_keywords(query)
 
-                # Merge: title-matched chunks get boosts
-                TITLE_BOOST = 0.30
-                SECTION_BOOST = 0.10
+                # ── Merge Pass 1 + Pass 2 ──
                 seen_ids: dict[int, SearchResult] = {}
 
                 for row in title_rows:
                     cid = row["chunk_id"]
                     title_lower = row["page_title"].lower()
 
-                    # Skip chunks from shadowed (substring) title matches
                     if title_lower in shadowed:
                         continue
 
                     boost = TITLE_BOOST
-
-                    # Extra boost when section header matches query intent
                     section = (row["section_header"] or "").lower()
                     if section and section_keywords:
                         if any(kw in section for kw in section_keywords):
                             boost += SECTION_BOOST
 
-                    boosted_sim = min(row["similarity"] + boost, 1.0)
                     seen_ids[cid] = SearchResult(
                         chunk_id=cid,
                         title=row["page_title"],
@@ -206,7 +255,7 @@ class VectorSearch:
                         content=row["content"],
                         page_type=row["page_type"],
                         categories=row["categories"] or [],
-                        similarity=boosted_sim,
+                        similarity=min(row["similarity"] + boost, 1.0),
                     )
 
                 for row in vector_rows:
@@ -222,13 +271,76 @@ class VectorSearch:
                             similarity=row["similarity"],
                         )
 
-                # Sort by similarity descending, return top_k
+                # ── Pass 3: Cross-reference search (2-hop) ──
+                # Look at the top results so far and find wiki pages
+                # mentioned in their content. Then fetch chunks from
+                # those referenced pages.
+                interim = sorted(seen_ids.values(), key=lambda r: r.similarity, reverse=True)
+                top_content = " ".join(r.content for r in interim[:3])
+
+                if top_content:
+                    title_index = await self._get_title_index(conn)
+                    exclude = matched_titles | shadowed
+                    referenced = self._find_references(top_content, query, exclude)
+
+                    if referenced:
+                        logger.info(
+                            f"Cross-ref: found {referenced} in top results"
+                        )
+
+                    for ref_title in referenced:
+                        xref_rows = await conn.fetch(
+                            """
+                            SELECT
+                                wc.id AS chunk_id,
+                                wc.title AS page_title,
+                                wc.section_header,
+                                wc.content,
+                                wc.page_type,
+                                wc.categories,
+                                1 - (we.embedding <=> $1) AS similarity
+                            FROM wiki_chunks wc
+                            JOIN wiki_embeddings we ON we.chunk_id = wc.id
+                            WHERE
+                                LOWER(wc.title) = LOWER($2)
+                                AND ($3::text IS NULL OR wc.page_type = $3)
+                                AND ($4::text IS NULL OR $4 = ANY(wc.game_modes))
+                            ORDER BY we.embedding <=> $1
+                            LIMIT $5
+                            """,
+                            embedding,
+                            ref_title,
+                            page_type,
+                            game_mode,
+                            top_k,
+                        )
+
+                        for row in xref_rows:
+                            cid = row["chunk_id"]
+                            if cid not in seen_ids:
+                                boost = XREF_BOOST
+                                section = (row["section_header"] or "").lower()
+                                if section and section_keywords:
+                                    if any(kw in section for kw in section_keywords):
+                                        boost += SECTION_BOOST
+                                seen_ids[cid] = SearchResult(
+                                    chunk_id=cid,
+                                    title=row["page_title"],
+                                    section_header=row["section_header"],
+                                    content=row["content"],
+                                    page_type=row["page_type"],
+                                    categories=row["categories"] or [],
+                                    similarity=min(row["similarity"] + boost, 1.0),
+                                )
+
+                # Final sort and return
                 results = sorted(seen_ids.values(), key=lambda r: r.similarity, reverse=True)
 
                 if results:
-                    logger.debug(
-                        f"Search merge: {len(seen_ids)} unique chunks, "
-                        f"top={results[0].title}>{results[0].section_header} ({results[0].similarity:.3f})"
+                    titles_in_results = {r.title for r in results[:top_k]}
+                    logger.info(
+                        f"Search: '{query[:60]}' → {len(seen_ids)} candidates, "
+                        f"returning {min(top_k, len(results))} from pages: {titles_in_results}"
                     )
 
                 return results[:top_k]
