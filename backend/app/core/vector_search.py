@@ -6,6 +6,7 @@ then calls pgvector's cosine similarity search via the search_wiki() function.
 """
 
 import logging
+import re
 from dataclasses import dataclass
 
 import httpx
@@ -16,6 +17,30 @@ logger = logging.getLogger(__name__)
 
 OPENAI_API_URL = "https://api.openai.com/v1/embeddings"
 EMBEDDING_DIMENSION = 1536
+
+# Maps query keywords → section headers that are likely relevant
+_SECTION_KEYWORDS: dict[str, list[str]] = {
+    "requirement": ["requirements", "details", "quest requirements", "skill requirements"],
+    "drop": ["drops", "drop rates", "loot", "rare drop table"],
+    "strateg": ["strategy", "strategies", "guide", "walkthrough"],
+    "reward": ["rewards", "completion"],
+    "location": ["location", "getting there", "how to get there"],
+    "how to get": ["location", "getting there", "transportation"],
+    "where": ["location", "getting there"],
+    "spec": ["special attack", "combat"],
+    "stats": ["stats", "bonuses", "combat stats"],
+    "price": ["price", "value", "cost", "exchange"],
+}
+
+
+def _extract_section_keywords(query: str) -> set[str]:
+    """Extract likely section header keywords from a query."""
+    q = query.lower()
+    keywords: set[str] = set()
+    for trigger, sections in _SECTION_KEYWORDS.items():
+        if trigger in q:
+            keywords.update(sections)
+    return keywords
 
 
 @dataclass
@@ -77,10 +102,10 @@ class VectorSearch:
 
         When a user asks about a specific page by name (e.g. "Dragon Slayer II"),
         pure vector search can miss it because generic "Requirements" sections
-        from other pages score higher. This does two passes:
+        from other pages score higher. This does three passes:
           1. Vector similarity search (semantic)
-          2. Title-match search (keyword)
-        Then merges results, boosting title-matched chunks.
+          2. Title-match search (keyword) — retrieves many chunks from matching pages
+          3. Merge with boosting: title match + section relevance + longest-title priority
         """
         # Step 1: Embed the query
         try:
@@ -101,7 +126,8 @@ class VectorSearch:
                 )
 
                 # Pass 2: Title-match search — find chunks from pages whose
-                # title appears in the query (case-insensitive)
+                # title appears in the query. Retrieve extra chunks (top_k*3)
+                # so we get broader section coverage from the matched page.
                 title_rows = await conn.fetch(
                     """
                     SELECT
@@ -111,7 +137,8 @@ class VectorSearch:
                         wc.content,
                         wc.page_type,
                         wc.categories,
-                        1 - (we.embedding <=> $1) AS similarity
+                        1 - (we.embedding <=> $1) AS similarity,
+                        LENGTH(wp.title) AS title_length
                     FROM wiki_chunks wc
                     JOIN wiki_embeddings we ON we.chunk_id = wc.id
                     JOIN wiki_pages wp ON wp.page_id = wc.page_id
@@ -120,23 +147,55 @@ class VectorSearch:
                         AND LENGTH(wp.title) >= 4
                         AND ($3::text IS NULL OR wc.page_type = $3)
                         AND ($4::text IS NULL OR $4 = ANY(wc.game_modes))
-                    ORDER BY we.embedding <=> $1
+                    ORDER BY LENGTH(wp.title) DESC, we.embedding <=> $1
                     LIMIT $5
                     """,
                     embedding,
                     query,
                     page_type,
                     game_mode,
-                    top_k,
+                    top_k * 3,
                 )
 
-                # Merge: title-matched chunks get a similarity boost
-                TITLE_BOOST = 0.15
+                # Collect all matched title names to filter substring collisions
+                # e.g. "Dragon Slayer I" matching inside "Dragon Slayer II"
+                matched_titles: set[str] = set()
+                for row in title_rows:
+                    matched_titles.add(row["page_title"].lower())
+
+                # Build set of "shadowed" titles — shorter titles that are
+                # substrings of a longer matched title
+                shadowed: set[str] = set()
+                for t in matched_titles:
+                    for other in matched_titles:
+                        if t != other and t in other and len(t) < len(other):
+                            shadowed.add(t)
+
+                # Section relevance keywords from the query
+                section_keywords = _extract_section_keywords(query)
+
+                # Merge: title-matched chunks get boosts
+                TITLE_BOOST = 0.30
+                SECTION_BOOST = 0.10
                 seen_ids: dict[int, SearchResult] = {}
 
                 for row in title_rows:
                     cid = row["chunk_id"]
-                    boosted_sim = min(row["similarity"] + TITLE_BOOST, 1.0)
+                    title_lower = row["page_title"].lower()
+
+                    # Skip chunks from shadowed (substring) title matches
+                    if title_lower in shadowed:
+                        continue
+
+                    boost = TITLE_BOOST
+
+                    # Extra boost when section header matches query intent
+                    section = (row["section_header"] or "").lower()
+                    if section and section_keywords:
+                        if any(kw in section for kw in section_keywords):
+                            boost += SECTION_BOOST
+
+                    boosted_sim = min(row["similarity"] + boost, 1.0)
                     seen_ids[cid] = SearchResult(
                         chunk_id=cid,
                         title=row["page_title"],
@@ -162,6 +221,13 @@ class VectorSearch:
 
                 # Sort by similarity descending, return top_k
                 results = sorted(seen_ids.values(), key=lambda r: r.similarity, reverse=True)
+
+                if results:
+                    logger.debug(
+                        f"Search merge: {len(seen_ids)} unique chunks, "
+                        f"top={results[0].title}>{results[0].section_header} ({results[0].similarity:.3f})"
+                    )
+
                 return results[:top_k]
 
         except Exception as e:
