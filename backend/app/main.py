@@ -164,58 +164,6 @@ async def health_check():
     }
 
 
-@app.get("/api/debug/search")
-async def debug_search():
-    """Temporary diagnostic — test whether vector search works end-to-end."""
-    from app.core.vector_search import SearchResult
-    result = {
-        "embedding_key_set": bool(settings.embedding_api_key),
-        "anthropic_key_set": bool(settings.anthropic_api_key),
-        "db_connected": False,
-        "embed_ok": False,
-        "search_ok": False,
-        "error": None,
-        "results_count": 0,
-        "top_results": [],
-    }
-
-    if not _rag_pipeline:
-        result["error"] = "RAG pipeline not initialized"
-        return result
-
-    try:
-        async with _rag_pipeline.pool.acquire() as conn:
-            await conn.fetchval("SELECT 1")
-            result["db_connected"] = True
-    except Exception as e:
-        result["error"] = f"DB connection: {e}"
-        return result
-
-    try:
-        embedding = await _rag_pipeline.vector_search.embed_query("Dragon Slayer II requirements")
-        result["embed_ok"] = True
-        result["embedding_dims"] = len(embedding)
-    except Exception as e:
-        result["error"] = f"Embedding failed: {e}"
-        return result
-
-    try:
-        results = await _rag_pipeline.vector_search.search(
-            query="What are the requirements for Dragon Slayer II?",
-            top_k=5,
-        )
-        result["search_ok"] = True
-        result["results_count"] = len(results)
-        result["top_results"] = [
-            {"title": r.title, "section": r.section_header, "similarity": round(r.similarity, 3)}
-            for r in results[:5]
-        ]
-    except Exception as e:
-        result["error"] = f"Search failed: {e}"
-
-    return result
-
-
 @app.get("/api/stats")
 async def stats():
     if _stats_tracker is None:
