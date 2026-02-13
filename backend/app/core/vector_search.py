@@ -65,10 +65,13 @@ class VectorSearch:
 
     def __init__(self, db_pool):
         self.pool = db_pool
+        # Strip whitespace/newlines from key — Render env vars sometimes
+        # pick up stray newlines when pasted into the dashboard
+        clean_key = settings.embedding_api_key.strip().replace("\n", "").replace("\r", "").replace(" ", "")
         self.http_client = httpx.AsyncClient(
             timeout=30.0,
             headers={
-                "Authorization": f"Bearer {settings.embedding_api_key}",
+                "Authorization": f"Bearer {clean_key}",
                 "Content-Type": "application/json",
             },
         )
