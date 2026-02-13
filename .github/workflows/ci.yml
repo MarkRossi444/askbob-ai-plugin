@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Verify imports
+        env:
+          ANTHROPIC_API_KEY: test
+          DATABASE_URL: postgresql://test:test@localhost/test
+        run: python -c "from app.main import app; print('OK')"
+
+      - name: Build Docker image
+        run: docker build -t wom-backend .
+
+  plugin:
+    name: Plugin
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: plugin
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "11"
+
+      - name: Build plugin
+        run: chmod +x gradlew && ./gradlew build --no-daemon
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: plugin-jar
+          path: plugin/build/libs/*.jar
+          retention-days: 30

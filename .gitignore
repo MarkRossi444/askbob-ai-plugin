@@ -1,0 +1,47 @@
+# Environment
+.env
+.env.local
+.env.production
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Java / Gradle
+plugin/build/
+plugin/.gradle/
+plugin/out/
+*.class
+*.jar
+*.war
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+.eggs/
+venv/
+.venv/
+env/
+
+# Scrapy
+scraper/.scrapy/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+*~
+
+# Claude Code
+.claude/memory/
+
+# Logs
+*.log
+logs/

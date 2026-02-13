@@ -1,0 +1,1559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WiseOldMan.Ai — Test Chat</title>
+    <style>
+        /* ===== CSS Custom Properties (Theme System) ===== */
+        :root {
+            --bg-body: #1b1b1a;
+            --bg-panel: #222221;
+            --bg-header: linear-gradient(180deg, #272624 0%, #1e1e1d 40%, #242322 100%);
+            --bg-input-area: linear-gradient(180deg, #242322 0%, #1e1e1d 100%);
+            --bg-input: #1b1b1a;
+            --bg-user-msg: linear-gradient(180deg, #343330 0%, #2c2b28 40%, #2e2d2a 100%);
+            --bg-bot-msg: linear-gradient(170deg, #2d2c28 0%, #28271f 30%, #2a2922 60%, #2d2c28 100%);
+            --bg-code: #1b1b1a;
+            --bg-scrollbar-track: #1b1b1a;
+            --bg-scrollbar-thumb: linear-gradient(180deg, #44413b, #3a3733, #44413b);
+            --bg-scroll-btn: linear-gradient(180deg, #3a3835, #2c2b28);
+            --bg-send-btn: linear-gradient(to bottom, #C8A033, #A67C00);
+            --bg-send-hover: linear-gradient(to bottom, #DAB044, #B8860B);
+            --bg-send-active: linear-gradient(to bottom, #A67C00, #8B6914);
+            --bg-send-disabled: #2a2928;
+            --bg-avatar: #1b1b1a;
+            --bg-starter: rgba(30, 28, 24, 0.9);
+
+            --color-text: #B0B0B0;
+            --color-text-bright: #d0cdc4;
+            --color-text-user: #d0cdc4;
+            --color-text-bot: #c0bbb0;
+            --color-text-input: #ccc9c0;
+            --color-gold: #FFD700;
+            --color-gold-dark: #8B6914;
+            --color-gold-mid: #B8860B;
+            --color-green: #6b9b3a;
+            --color-green-hover: #8bc34a;
+            --color-red: #cc4444;
+            --color-red-bg: linear-gradient(to bottom, #993333, #772222);
+            --color-meta: #4a4a46;
+            --color-sources: #666;
+            --color-status: #666;
+            --color-status-connected: #6b9b3a;
+            --color-placeholder: #555;
+            --color-disabled: #555;
+            --color-typing: #FFD700;
+
+            --border-main: #44413b;
+            --border-user: #4e4b44;
+            --border-user-top: #555249;
+            --border-user-bottom: #3a3835;
+            --border-bot: #4a4640;
+            --border-code: #3a3733;
+            --border-scroll-btn: #5a564e;
+            --border-send: #8B6914;
+            --border-avatar: #8B6914;
+            --border-clear: #44413b;
+            --border-clear-hover: #993333;
+            --border-input-focus: #8B6914;
+
+            --stone-col-bg: linear-gradient(180deg,
+                #3a3733 0%, #2e2c29 8%, #353330 16%, #2e2c29 24%,
+                #3a3733 32%, #2e2c29 40%, #353330 48%, #2e2c29 56%,
+                #3a3733 64%, #2e2c29 72%, #353330 80%, #2e2c29 88%,
+                #3a3733 100%);
+            --stone-col-shadow: inset -1px 0 2px rgba(0,0,0,0.5), inset 1px 0 1px rgba(255,215,0,0.03);
+            --stone-col-border: #44413b;
+
+            --vignette-top: #222221;
+            --vignette-bottom: #222221;
+
+            --shadow-user: 0 3px 6px rgba(0,0,0,0.4);
+            --shadow-bot: 0 3px 8px rgba(0,0,0,0.4);
+        }
+
+        /* ===== Light Theme ===== */
+        [data-theme="light"] {
+            --bg-body: #e8e0d0;
+            --bg-panel: #f5efe4;
+            --bg-header: linear-gradient(180deg, #d4c9b5 0%, #c8bda8 40%, #d0c4af 100%);
+            --bg-input-area: linear-gradient(180deg, #d0c4af 0%, #c8bda8 100%);
+            --bg-input: #faf6ef;
+            --bg-user-msg: linear-gradient(180deg, #ddd5c4 0%, #d4cbb8 40%, #d8cfbe 100%);
+            --bg-bot-msg: linear-gradient(170deg, #f0e8d8 0%, #ece3d0 30%, #eee5d4 60%, #f0e8d8 100%);
+            --bg-code: #ede5d5;
+            --bg-scrollbar-track: #e0d8c8;
+            --bg-scrollbar-thumb: linear-gradient(180deg, #b8a888, #a89878, #b8a888);
+            --bg-scroll-btn: linear-gradient(180deg, #c8b898, #b8a888);
+            --bg-send-btn: linear-gradient(to bottom, #b8940a, #9a7a00);
+            --bg-send-hover: linear-gradient(to bottom, #c8a41a, #a88a0a);
+            --bg-send-active: linear-gradient(to bottom, #9a7a00, #7a6000);
+            --bg-send-disabled: #d0c8b8;
+            --bg-avatar: #e8e0d0;
+            --bg-starter: rgba(240, 232, 216, 0.95);
+
+            --color-text: #4a3f30;
+            --color-text-bright: #3a2f20;
+            --color-text-user: #3a3020;
+            --color-text-bot: #4a3f30;
+            --color-text-input: #3a3020;
+            --color-gold: #9a7500;
+            --color-gold-dark: #7a5a00;
+            --color-gold-mid: #8a6a00;
+            --color-green: #4a7a20;
+            --color-green-hover: #5a8a30;
+            --color-red: #993333;
+            --color-red-bg: linear-gradient(to bottom, #993333, #772222);
+            --color-meta: #8a7a60;
+            --color-sources: #7a6a50;
+            --color-status: #8a7a60;
+            --color-status-connected: #4a7a20;
+            --color-placeholder: #9a8a70;
+            --color-disabled: #9a8a70;
+            --color-typing: #9a7500;
+
+            --border-main: #b8a888;
+            --border-user: #c0b090;
+            --border-user-top: #c8b898;
+            --border-user-bottom: #b0a080;
+            --border-bot: #c0b090;
+            --border-code: #c0b090;
+            --border-scroll-btn: #b8a888;
+            --border-send: #7a5a00;
+            --border-avatar: #9a7500;
+            --border-clear: #b8a888;
+            --border-clear-hover: #993333;
+            --border-input-focus: #9a7500;
+
+            --stone-col-bg: linear-gradient(180deg,
+                #c8bda8 0%, #bfb49e 8%, #c4b8a4 16%, #bfb49e 24%,
+                #c8bda8 32%, #bfb49e 40%, #c4b8a4 48%, #bfb49e 56%,
+                #c8bda8 64%, #bfb49e 72%, #c4b8a4 80%, #bfb49e 88%,
+                #c8bda8 100%);
+            --stone-col-shadow: inset -1px 0 2px rgba(0,0,0,0.15), inset 1px 0 1px rgba(255,215,0,0.05);
+            --stone-col-border: #b8a888;
+
+            --vignette-top: #f5efe4;
+            --vignette-bottom: #f5efe4;
+
+            --shadow-user: 0 2px 4px rgba(0,0,0,0.12);
+            --shadow-bot: 0 2px 6px rgba(0,0,0,0.12);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: var(--bg-body);
+            color: var(--color-text);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+        }
+
+        /* ===== Main Panel — RuneLite charcoal with warm stone edges ===== */
+        .panel-container {
+            width: 100%;
+            max-width: 440px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: relative;
+            background: var(--bg-panel);
+        }
+
+        /* Stone column borders on left and right */
+        .panel-container::before,
+        .panel-container::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 8px;
+            z-index: 10;
+            background: var(--stone-col-bg);
+            box-shadow: var(--stone-col-shadow);
+        }
+        .panel-container::before { left: 0; border-right: 1px solid var(--stone-col-border); }
+        .panel-container::after { right: 0; border-left: 1px solid var(--stone-col-border); }
+
+        /* ===== Header — ornate banner on charcoal ===== */
+        header {
+            background: var(--bg-header);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            z-index: 5;
+            border-bottom: 2px solid var(--border-main);
+            flex-wrap: wrap;
+        }
+
+        /* Gold ornamental border under header */
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 20px;
+            right: 20px;
+            height: 2px;
+            background: linear-gradient(90deg,
+                transparent 0%, var(--color-gold-dark) 15%, var(--color-gold) 35%, var(--color-gold) 50%,
+                var(--color-gold) 65%, var(--color-gold-dark) 85%, transparent 100%
+            );
+            opacity: 0.5;
+        }
+
+        /* Diamond ornament at header bottom center */
+        header::before {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%) rotate(45deg);
+            width: 8px;
+            height: 8px;
+            background: linear-gradient(135deg, var(--color-gold), var(--color-gold-mid));
+            border: 1px solid var(--color-gold-dark);
+            z-index: 6;
+            box-shadow: 0 0 6px rgba(255, 215, 0, 0.25);
+        }
+
+        /* Wise Old Man chathead icon */
+        .header-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 3px;
+            background: var(--bg-avatar);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            border: 1px solid var(--border-avatar);
+            overflow: hidden;
+        }
+        .header-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center 15%;
+            image-rendering: pixelated;
+        }
+
+        header h1 {
+            color: var(--color-gold);
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.7), 0 0 10px rgba(255,215,0,0.12);
+        }
+
+        /* Dropdown */
+        header select {
+            background: var(--bg-input);
+            color: var(--color-text);
+            border: 1px solid var(--border-main);
+            padding: 4px 8px;
+            border-radius: 2px;
+            font-size: 11px;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            outline: none;
+            cursor: pointer;
+            appearance: auto;
+        }
+        header select:hover { border-color: var(--border-scroll-btn); }
+        header select:focus { border-color: var(--color-gold); }
+
+        .status {
+            font-size: 10px;
+            color: var(--color-status);
+            white-space: nowrap;
+        }
+        .status.connected { color: var(--color-status-connected); }
+
+        .header-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Header buttons (Clear, Copy, Export, Theme, Sound) */
+        .hdr-btn {
+            background: none;
+            border: 1px solid var(--border-clear);
+            color: var(--color-status);
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 2px;
+            cursor: pointer;
+            white-space: nowrap;
+            touch-action: manipulation;
+        }
+        .hdr-btn:hover { border-color: var(--color-gold-dark); color: var(--color-gold); }
+        .clear-btn:hover { border-color: var(--border-clear-hover); color: var(--color-red); }
+
+        /* ===== Chat area — charcoal with subtle stone texture ===== */
+        .chat-wrapper {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Subtle background texture — very faint stone grain */
+        .chat-wrapper::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            opacity: 0.03;
+            background:
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(160,150,130,0.12) 2px,
+                    rgba(160,150,130,0.12) 4px
+                ),
+                repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 40px,
+                    rgba(160,150,130,0.06) 40px,
+                    rgba(160,150,130,0.06) 41px
+                ),
+                radial-gradient(ellipse at 50% 30%, rgba(255,215,0,0.04) 0%, transparent 70%);
+        }
+
+        /* Faint compass rose watermark */
+        .chat-wrapper::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            z-index: 0;
+            opacity: 0.02;
+            background:
+                radial-gradient(circle at 50% 50%, transparent 30%, rgba(255,215,0,0.3) 31%, rgba(255,215,0,0.3) 32%, transparent 33%),
+                radial-gradient(circle at 50% 50%, transparent 48%, rgba(255,215,0,0.2) 49%, rgba(255,215,0,0.2) 50%, transparent 51%),
+                linear-gradient(0deg, transparent 48%, rgba(255,215,0,0.4) 49%, rgba(255,215,0,0.4) 51%, transparent 52%),
+                linear-gradient(90deg, transparent 48%, rgba(255,215,0,0.4) 49%, rgba(255,215,0,0.4) 51%, transparent 52%),
+                linear-gradient(45deg, transparent 48%, rgba(255,215,0,0.2) 49%, rgba(255,215,0,0.2) 51%, transparent 52%),
+                linear-gradient(-45deg, transparent 48%, rgba(255,215,0,0.2) 49%, rgba(255,215,0,0.2) 51%, transparent 52%);
+        }
+
+        #chat {
+            position: relative;
+            z-index: 1;
+            height: 100%;
+            overflow-y: auto;
+            padding: 18px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* Scrollbar */
+        #chat::-webkit-scrollbar { width: 8px; }
+        #chat::-webkit-scrollbar-track { background: var(--bg-scrollbar-track); }
+        #chat::-webkit-scrollbar-thumb {
+            background: var(--bg-scrollbar-thumb);
+            border-radius: 4px;
+            border: 1px solid var(--bg-panel);
+        }
+        #chat::-webkit-scrollbar-thumb:hover { background: #524e47; }
+
+        /* Inner shadow vignette at top and bottom of chat */
+        .chat-wrapper .vignette-top,
+        .chat-wrapper .vignette-bottom {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 30px;
+            z-index: 2;
+            pointer-events: none;
+        }
+        .chat-wrapper .vignette-top {
+            top: 0;
+            background: linear-gradient(180deg, var(--vignette-top) 0%, transparent 100%);
+        }
+        .chat-wrapper .vignette-bottom {
+            bottom: 0;
+            background: linear-gradient(0deg, var(--vignette-bottom) 0%, transparent 100%);
+        }
+
+        /* ===== Message bubbles ===== */
+        .message {
+            max-width: 88%;
+            padding: 12px 14px;
+            line-height: 1.5;
+            font-size: 12.5px;
+            word-wrap: break-word;
+            position: relative;
+        }
+
+        /* User messages — chiseled stone tablet */
+        .user {
+            align-self: flex-end;
+            white-space: pre-wrap;
+            background: var(--bg-user-msg);
+            border: 1px solid var(--border-user);
+            border-top: 1px solid var(--border-user-top);
+            border-bottom: 1px solid var(--border-user-bottom);
+            border-radius: 3px 3px 0 3px;
+            color: var(--color-text-user);
+            box-shadow: var(--shadow-user), inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.15);
+        }
+
+        /* Small stone corner accent on user messages */
+        .user::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            right: -1px;
+            width: 6px;
+            height: 6px;
+            background: var(--bg-panel);
+            border-left: 1px solid var(--border-user);
+            border-top: 1px solid var(--border-user);
+        }
+
+        /* Bot messages — parchment scroll with gold trim */
+        .bot {
+            align-self: flex-start;
+            background: var(--bg-bot-msg);
+            border: 1px solid var(--border-bot);
+            border-left: 3px solid transparent;
+            border-image: linear-gradient(180deg, var(--color-gold-dark) 0%, var(--color-gold) 30%, var(--color-gold) 70%, var(--color-gold-dark) 100%) 1;
+            border-image-slice: 0 0 0 3;
+            border-radius: 0;
+            box-shadow: var(--shadow-bot), inset 0 1px 0 rgba(255,215,0,0.04), inset 0 0 12px rgba(0,0,0,0.15);
+        }
+
+        /* Parchment texture overlay on bot messages */
+        .bot::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            opacity: 0.03;
+            pointer-events: none;
+            background:
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 1px,
+                    rgba(200,180,120,0.3) 1px,
+                    rgba(200,180,120,0.3) 2px
+                );
+        }
+
+        /* Gold corner flourish on bot messages */
+        .bot::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 3px;
+            width: 20px;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(255,215,0,0.3), transparent);
+        }
+
+        .bot .answer {
+            color: var(--color-text-bot);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Welcome message slightly brighter */
+        .message.bot:first-child .answer { color: var(--color-text-bright); }
+
+        /* ===== Sources ===== */
+        .sources {
+            margin-top: 8px;
+            padding-top: 6px;
+            border-top: 1px solid rgba(139,105,20,0.2);
+            font-size: 10px;
+            color: var(--color-sources);
+            position: relative;
+            z-index: 1;
+        }
+        .sources a {
+            color: var(--color-green);
+            text-decoration: none;
+            font-size: 10px;
+        }
+        .sources a:hover { text-decoration: underline; color: var(--color-green-hover); }
+
+        .meta {
+            font-size: 9px;
+            color: var(--color-meta);
+            margin-top: 4px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===== Typing indicator ===== */
+        .typing { color: var(--color-typing); font-style: normal; font-size: 12.5px; }
+        .typing::after {
+            content: '';
+            animation: dots 1.4s steps(4, end) infinite;
+        }
+        @keyframes dots {
+            0%   { content: ''; }
+            25%  { content: '.'; }
+            50%  { content: '..'; }
+            75%  { content: '...'; }
+            100% { content: ''; }
+        }
+
+        .message + .message.user { margin-top: 4px; }
+
+        /* ===== Input area ===== */
+        #input-area {
+            padding: 10px 16px;
+            background: var(--bg-input-area);
+            border-top: 2px solid var(--border-main);
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+            position: relative;
+            z-index: 5;
+        }
+
+        /* Gold ornamental border above input */
+        #input-area::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: 20px;
+            right: 20px;
+            height: 2px;
+            background: linear-gradient(90deg,
+                transparent 0%, var(--color-gold-dark) 15%, var(--color-gold) 35%, var(--color-gold) 50%,
+                var(--color-gold) 65%, var(--color-gold-dark) 85%, transparent 100%
+            );
+            opacity: 0.25;
+        }
+
+        #question {
+            flex: 1;
+            background: var(--bg-input);
+            color: var(--color-text-input);
+            border: 1px solid var(--border-main);
+            padding: 8px 12px;
+            border-radius: 2px;
+            font-size: 12px;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        #question::placeholder { color: var(--color-placeholder); font-size: 11px; }
+        #question:focus {
+            border-color: var(--border-input-focus);
+            box-shadow: 0 0 0 1px rgba(255, 215, 0, 0.08), 0 0 8px rgba(255, 215, 0, 0.04);
+        }
+
+        /* OSRS-style Ask button — gold */
+        #send {
+            background: var(--bg-send-btn);
+            color: #1b1b1b;
+            border: 1px solid var(--border-send);
+            padding: 8px 18px;
+            border-radius: 2px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 11px;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            letter-spacing: 0.5px;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.15);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+            transition: background 0.15s;
+            touch-action: manipulation;
+        }
+        #send:hover {
+            background: var(--bg-send-hover);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.15), 0 0 8px rgba(255,215,0,0.12);
+        }
+        #send:active {
+            background: var(--bg-send-active);
+            box-shadow: inset 0 2px 3px rgba(0,0,0,0.4);
+        }
+        #send:disabled {
+            background: var(--bg-send-disabled);
+            color: var(--color-disabled);
+            border-color: var(--border-main);
+            cursor: not-allowed;
+            text-shadow: none;
+            box-shadow: none;
+        }
+
+        /* ===== Markdown rendering in bot messages ===== */
+        .bot .answer strong { color: var(--color-gold); font-weight: 600; }
+        .bot .answer em { color: var(--color-text-bright); font-style: italic; }
+        .bot .answer code {
+            background: var(--bg-code);
+            padding: 1px 5px;
+            border-radius: 2px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 11px;
+            color: var(--color-text-bright);
+            border: 1px solid var(--border-code);
+        }
+        .bot .answer pre {
+            background: var(--bg-code);
+            border: 1px solid var(--border-code);
+            border-left: 2px solid var(--border-main);
+            border-radius: 2px;
+            padding: 8px 10px;
+            margin: 6px 0;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+        .bot .answer pre code { background: none; padding: 0; border: none; }
+        .bot .answer ul, .bot .answer ol { margin: 4px 0 4px 16px; padding: 0; }
+        .bot .answer li { margin: 2px 0; }
+        .bot .answer h3, .bot .answer h4 {
+            color: var(--color-gold);
+            font-size: 12.5px;
+            margin: 8px 0 3px 0;
+            text-shadow: 0 0 6px rgba(255,215,0,0.08);
+        }
+        .bot .answer p { margin: 3px 0; }
+        .bot .answer a { color: var(--color-green); text-decoration: none; }
+        .bot .answer a:hover { text-decoration: underline; color: var(--color-green-hover); }
+
+        /* ===== Bot message flex wrapper with avatar ===== */
+        .bot-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            max-width: 88%;
+            align-self: flex-start;
+        }
+        .bot-avatar {
+            width: 22px;
+            height: 22px;
+            min-width: 22px;
+            border-radius: 2px;
+            border: 1.5px solid var(--border-avatar);
+            overflow: hidden;
+            margin-top: 2px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.5), 0 0 4px rgba(255,215,0,0.08);
+            background: var(--bg-avatar);
+        }
+        .bot-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center 15%;
+            image-rendering: pixelated;
+        }
+        .bot-row .message.bot {
+            max-width: 100%;
+        }
+
+        /* ===== Scroll-to-bottom button ===== */
+        .scroll-bottom {
+            position: absolute;
+            bottom: 14px;
+            right: 18px;
+            z-index: 10;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--bg-scroll-btn);
+            border: 1px solid var(--border-scroll-btn);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.5), 0 0 8px rgba(255,215,0,0.06);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s, transform 0.2s;
+            transform: translateY(6px);
+            touch-action: manipulation;
+        }
+        .scroll-bottom.visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+        .scroll-bottom:hover {
+            border-color: var(--color-gold-dark);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5), 0 0 10px rgba(255,215,0,0.12);
+        }
+        .scroll-bottom::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-right: 2px solid var(--color-gold);
+            border-bottom: 2px solid var(--color-gold);
+            transform: rotate(45deg) translate(-1px, -1px);
+        }
+
+        /* ===== Auto-resizing textarea ===== */
+        #question {
+            resize: none;
+            overflow: hidden;
+            min-height: 36px;
+            max-height: 100px;
+            line-height: 1.4;
+        }
+
+        /* ===== Error retry button ===== */
+        .retry-btn {
+            display: inline-block;
+            margin-top: 6px;
+            background: var(--color-red-bg);
+            color: #e0c0c0;
+            border: 1px solid #663333;
+            padding: 3px 10px;
+            border-radius: 2px;
+            font-size: 10px;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+        .retry-btn:hover {
+            background: linear-gradient(to bottom, #aa4444, #883333);
+        }
+
+        /* ===== Starter Questions ===== */
+        .starter-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            padding: 4px 0 8px;
+        }
+        .starter-pill {
+            background: var(--bg-starter);
+            border: 1px solid var(--color-gold-dark);
+            border-radius: 3px;
+            padding: 8px 10px;
+            font-size: 11px;
+            color: var(--color-gold);
+            cursor: pointer;
+            text-align: left;
+            line-height: 1.3;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            touch-action: manipulation;
+        }
+        .starter-pill:hover {
+            border-color: var(--color-gold);
+            box-shadow: 0 0 8px rgba(255,215,0,0.15);
+        }
+
+        /* ===== Cancelled indicator ===== */
+        .cancelled {
+            font-size: 10px;
+            color: var(--color-sources);
+            font-style: italic;
+            margin-top: 4px;
+        }
+
+        /* ===== Keyboard Shortcuts Overlay ===== */
+        .shortcuts-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+        }
+        .shortcuts-overlay.visible { display: flex; }
+        .shortcuts-box {
+            background: var(--bg-panel);
+            border: 2px solid var(--color-gold-dark);
+            border-radius: 4px;
+            padding: 20px 24px;
+            max-width: 320px;
+            width: 90%;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+        }
+        .shortcuts-box h3 {
+            color: var(--color-gold);
+            font-size: 14px;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        .shortcut-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            font-size: 12px;
+            color: var(--color-text);
+        }
+        .shortcut-row kbd {
+            background: var(--bg-code);
+            border: 1px solid var(--border-code);
+            border-radius: 2px;
+            padding: 1px 6px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 11px;
+            color: var(--color-gold);
+        }
+        .shortcuts-close {
+            display: block;
+            margin: 12px auto 0;
+            background: none;
+            border: 1px solid var(--border-main);
+            color: var(--color-text);
+            padding: 4px 16px;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+        .shortcuts-close:hover { border-color: var(--color-gold-dark); color: var(--color-gold); }
+
+        /* ===== Copy feedback flash ===== */
+        .flash { animation: flashGold 0.6s ease; }
+        @keyframes flashGold {
+            0% { color: var(--color-gold); }
+            100% { color: var(--color-status); }
+        }
+
+        /* ===== Mobile Responsiveness ===== */
+        @media (max-width: 480px) {
+            .panel-container {
+                max-width: 100%;
+            }
+            .panel-container::before,
+            .panel-container::after {
+                display: none;
+            }
+            header {
+                padding: 10px 12px;
+                gap: 6px;
+            }
+            .message {
+                max-width: 92%;
+            }
+            .bot-row {
+                max-width: 92%;
+            }
+            #question {
+                font-size: 16px; /* Prevents iOS zoom */
+            }
+            #send {
+                padding: 8px 14px;
+                min-height: 42px;
+            }
+            .hdr-btn {
+                min-height: 28px;
+                padding: 2px 8px;
+            }
+            .starter-grid {
+                grid-template-columns: 1fr;
+            }
+            .starter-pill {
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            header {
+                padding: 8px 10px;
+                gap: 4px;
+            }
+            header h1 {
+                font-size: 13px;
+            }
+            .status {
+                width: 100%;
+                text-align: center;
+                order: 10;
+            }
+        }
+
+        /* ===== Knowledge Base Building Banner ===== */
+        .kb-banner {
+            background: linear-gradient(180deg, #2d2a24 0%, #262420 100%);
+            border-bottom: 1px solid var(--border-main);
+            border-left: 3px solid var(--color-gold-dark);
+            padding: 10px 16px;
+            position: relative;
+            z-index: 4;
+        }
+        .kb-banner-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .kb-icon {
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        .kb-text {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            min-width: 0;
+        }
+        .kb-text strong {
+            color: var(--color-gold);
+            font-size: 11px;
+            letter-spacing: 0.3px;
+        }
+        .kb-text #kb-status {
+            color: var(--color-text);
+            font-size: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .kb-bar-wrap {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+        .kb-bar-wrap .kb-bar {
+            width: 80px;
+            height: 6px;
+            background: #1b1b1a;
+            border-radius: 3px;
+            overflow: hidden;
+            border: 1px solid var(--border-main);
+            position: relative;
+        }
+        .kb-bar-wrap .kb-bar::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: var(--kb-progress, 0%);
+            background: linear-gradient(90deg, var(--color-gold-dark), var(--color-gold));
+            border-radius: 2px;
+            transition: width 0.5s ease;
+        }
+        .kb-bar-wrap .kb-pct {
+            color: var(--color-gold);
+            font-size: 10px;
+            font-weight: 600;
+            min-width: 28px;
+            text-align: right;
+        }
+
+        @media (max-width: 480px) {
+            .kb-banner-content {
+                flex-wrap: wrap;
+            }
+            .kb-bar-wrap {
+                margin-left: 28px;
+                width: 100%;
+                margin-top: 4px;
+            }
+            .kb-bar-wrap .kb-bar {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="panel-container">
+        <header>
+            <div class="header-icon"><img src="/static/wise_old_man.png" alt="Wise Old Man"></div>
+            <h1>WiseOldMan.Ai</h1>
+            <select id="gameMode">
+                <option value="main">Main</option>
+                <option value="ironman">Ironman</option>
+                <option value="hardcore_ironman">Hardcore Ironman</option>
+                <option value="ultimate_ironman">Ultimate Ironman</option>
+                <option value="group_ironman">Group Ironman</option>
+            </select>
+            <div class="header-right">
+                <span class="status" id="status">Checking...</span>
+                <button class="hdr-btn" id="themeBtn" title="Toggle theme">Theme</button>
+                <button class="hdr-btn" id="soundBtn" title="Toggle sound notifications">Sound</button>
+                <button class="hdr-btn" id="copyBtn" title="Copy chat to clipboard">Copy</button>
+                <button class="hdr-btn" id="exportBtn" title="Download chat as .txt">Export</button>
+                <button class="hdr-btn clear-btn" id="clearBtn" title="Clear chat (Ctrl+L)">Clear</button>
+            </div>
+        </header>
+        <div id="kb-banner" class="kb-banner" style="display:none">
+            <div class="kb-banner-content">
+                <span class="kb-icon">⚒️</span>
+                <div class="kb-text">
+                    <strong>Building Knowledge Base</strong>
+                    <span id="kb-status">Initializing...</span>
+                </div>
+                <div class="kb-bar-wrap">
+                    <div class="kb-bar" id="kb-bar"></div>
+                    <span class="kb-pct" id="kb-pct">0%</span>
+                </div>
+            </div>
+        </div>
+        <div class="chat-wrapper">
+            <div class="vignette-top"></div>
+            <div id="chat">
+                <div class="bot-row">
+                    <div class="bot-avatar"><img src="/static/wise_old_man.png" alt="WOM"></div>
+                    <div class="message bot">
+                        <div class="answer">Greetings, adventurer! I'm the Wise Old Man — ask me anything about Old School RuneScape.</div>
+                    </div>
+                </div>
+                <div id="starterQuestions" class="starter-grid">
+                    <button class="starter-pill" data-q="What are the requirements for Dragon Slayer II?">Dragon Slayer II requirements?</button>
+                    <button class="starter-pill" data-q="What are good mid-level money making methods?">Mid-level money making?</button>
+                    <button class="starter-pill" data-q="How do I get to Fossil Island and what can I do there?">Getting to Fossil Island?</button>
+                    <button class="starter-pill" data-q="What gear should I bring to fight Zulrah?">Zulrah gear setup?</button>
+                    <button class="starter-pill" data-q="Can you explain tick manipulation for skilling?">Tick manipulation explained?</button>
+                    <button class="starter-pill" data-q="What quests do I need for Barrows Gloves?">Barrows Gloves quest reqs?</button>
+                </div>
+            </div>
+            <div class="vignette-bottom"></div>
+            <button class="scroll-bottom" id="scrollBtn" title="Scroll to bottom"></button>
+        </div>
+        <div id="input-area">
+            <textarea id="question" placeholder="Ask about quests, items, bosses, skills..." rows="1" autofocus></textarea>
+            <button id="send">Ask</button>
+        </div>
+    </div>
+
+    <!-- Keyboard shortcuts overlay -->
+    <div class="shortcuts-overlay" id="shortcutsOverlay">
+        <div class="shortcuts-box">
+            <h3>Keyboard Shortcuts</h3>
+            <div class="shortcut-row"><span>Clear chat</span><kbd>Ctrl+L</kbd></div>
+            <div class="shortcut-row"><span>Copy chat</span><kbd>Ctrl+Shift+C</kbd></div>
+            <div class="shortcut-row"><span>Cancel stream / clear input</span><kbd>Escape</kbd></div>
+            <div class="shortcut-row"><span>Show shortcuts</span><kbd>Ctrl+/</kbd></div>
+            <button class="shortcuts-close" id="shortcutsClose">Close (Esc)</button>
+        </div>
+    </div>
+
+    <script>
+        const chat = document.getElementById('chat');
+        const input = document.getElementById('question');
+        const sendBtn = document.getElementById('send');
+        const status = document.getElementById('status');
+        const gameMode = document.getElementById('gameMode');
+        const clearBtn = document.getElementById('clearBtn');
+        const scrollBtn = document.getElementById('scrollBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const themeBtn = document.getElementById('themeBtn');
+        const soundBtn = document.getElementById('soundBtn');
+        const starterEl = document.getElementById('starterQuestions');
+        const shortcutsOverlay = document.getElementById('shortcutsOverlay');
+        const shortcutsClose = document.getElementById('shortcutsClose');
+
+        // Conversation history for context (last 10 messages sent with each request)
+        let conversationHistory = [];
+
+        // Active stream abort controller
+        let activeAbort = null;
+
+        // ===== Theme =====
+        const THEME_KEY = 'wom_theme';
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem(THEME_KEY, theme);
+            themeBtn.textContent = theme === 'light' ? 'Dark' : 'Light';
+        }
+        applyTheme(localStorage.getItem(THEME_KEY) || 'dark');
+        themeBtn.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme') || 'dark';
+            applyTheme(current === 'dark' ? 'light' : 'dark');
+        });
+
+        // ===== Sound notification =====
+        const SOUND_KEY = 'wom_sound';
+        let soundEnabled = localStorage.getItem(SOUND_KEY) !== 'off';
+        function updateSoundBtn() {
+            soundBtn.textContent = soundEnabled ? 'Mute' : 'Unmute';
+        }
+        updateSoundBtn();
+        soundBtn.addEventListener('click', () => {
+            soundEnabled = !soundEnabled;
+            localStorage.setItem(SOUND_KEY, soundEnabled ? 'on' : 'off');
+            updateSoundBtn();
+        });
+
+        function playChime() {
+            if (!soundEnabled || !document.hidden) return;
+            try {
+                const ctx = new AudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(880, ctx.currentTime); // A5
+                osc.frequency.setValueAtTime(1318.5, ctx.currentTime + 0.2); // E6
+                gain.gain.setValueAtTime(0.15, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+                osc.start(ctx.currentTime);
+                osc.stop(ctx.currentTime + 0.4);
+            } catch (e) {}
+        }
+
+        // ===== localStorage persistence =====
+        const STORAGE_KEY = 'wom_chat_state';
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                    history: conversationHistory,
+                    gameMode: gameMode.value,
+                }));
+            } catch (e) {}
+        }
+        function loadState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (!raw) return;
+                const state = JSON.parse(raw);
+                if (state.gameMode) gameMode.value = state.gameMode;
+                if (state.history && state.history.length > 0) {
+                    conversationHistory = state.history;
+                    hideStarters();
+                    // Rebuild chat DOM from saved history
+                    state.history.forEach(msg => {
+                        if (msg.role === 'user') {
+                            const userMsg = document.createElement('div');
+                            userMsg.className = 'message user';
+                            userMsg.textContent = msg.content;
+                            chat.appendChild(userMsg);
+                        } else {
+                            const botRow = document.createElement('div');
+                            botRow.className = 'bot-row';
+                            botRow.innerHTML = '<div class="bot-avatar"><img src="/static/wise_old_man.png" alt="WOM"></div>';
+                            const botMsg = document.createElement('div');
+                            botMsg.className = 'message bot';
+                            botMsg.innerHTML = '<div class="answer">' + renderMarkdown(msg.content) + '</div>';
+                            botRow.appendChild(botMsg);
+                            chat.appendChild(botRow);
+                        }
+                    });
+                    chat.scrollTop = chat.scrollHeight;
+                }
+            } catch (e) {}
+        }
+
+        // ===== Starter Questions =====
+        function hideStarters() {
+            if (starterEl) starterEl.style.display = 'none';
+        }
+        function showStarters() {
+            if (starterEl) starterEl.style.display = '';
+        }
+        starterEl.addEventListener('click', (e) => {
+            const pill = e.target.closest('.starter-pill');
+            if (!pill) return;
+            input.value = pill.dataset.q;
+            askQuestion();
+        });
+
+        // ===== Scroll-to-bottom button =====
+        let userScrolledUp = false;
+        chat.addEventListener('scroll', () => {
+            const atBottom = chat.scrollHeight - chat.scrollTop - chat.clientHeight < 60;
+            userScrolledUp = !atBottom;
+            scrollBtn.classList.toggle('visible', userScrolledUp);
+        });
+        scrollBtn.addEventListener('click', () => {
+            chat.scrollTo({ top: chat.scrollHeight, behavior: 'smooth' });
+        });
+
+        // ===== Auto-resize textarea =====
+        input.addEventListener('input', () => {
+            input.style.height = 'auto';
+            input.style.height = Math.min(input.scrollHeight, 100) + 'px';
+        });
+
+        // Lightweight markdown renderer (HTML-escapes first for XSS safety)
+        function renderMarkdown(text) {
+            let html = text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+
+            html = html.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) =>
+                `<pre><code>${code.trim()}</code></pre>`
+            );
+            html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+            html = html.replace(/^#### (.+)$/gm, '<h4>$1</h4>');
+            html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+            html = html.replace(/^## (.+)$/gm, '<h3>$1</h3>');
+            html = html.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+            html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+            html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+            html = html.replace(/^[-\u2022] (.+)$/gm, '<li>$1</li>');
+            html = html.replace(/(<li>[\s\S]*?<\/li>)/g, (match) => {
+                if (!match.startsWith('<ul>')) return '<ul>' + match + '</ul>';
+                return match;
+            });
+            html = html.replace(/<\/ul>\s*<ul>/g, '');
+            html = html.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
+            html = html.replace(/\n\n/g, '</p><p>');
+            html = html.replace(/\n/g, '<br>');
+            html = html.replace(/(<\/(?:h[34]|pre|ul|ol|li|p)>)<br>/g, '$1');
+            html = html.replace(/<br>(<(?:h[34]|pre|ul|ol|li))/g, '$1');
+            if (!html.startsWith('<')) html = '<p>' + html + '</p>';
+            return html;
+        }
+
+        // KB banner elements
+        const kbBanner = document.getElementById('kb-banner');
+        const kbStatus = document.getElementById('kb-status');
+        const kbBar = document.getElementById('kb-bar');
+        const kbPct = document.getElementById('kb-pct');
+
+        // Health check with live stats
+        function checkHealth() {
+            fetch('/api/health')
+                .then(r => r.json())
+                .then(d => {
+                    if (d.rag_ready) {
+                        let txt = `RAG Ready (${d.stats.embeddings.toLocaleString()} embeddings)`;
+                        if (d.embedding_coverage_pct !== undefined) {
+                            txt += ` \u00b7 ${d.embedding_coverage_pct}% coverage`;
+                        }
+                        status.textContent = txt;
+                        kbBanner.style.display = 'none';
+                    } else if (d.stats.chunks > 0) {
+                        let txt = `Scraping... ${d.stats.pages.toLocaleString()} pages`;
+                        if (d.embedding_coverage_pct !== undefined && d.embedding_coverage_pct > 0) {
+                            txt += ` (${d.embedding_coverage_pct}%)`;
+                        }
+                        status.textContent = txt;
+                        // Show KB banner with progress
+                        kbBanner.style.display = '';
+                        kbStatus.textContent = `${d.stats.pages.toLocaleString()} pages scraped \u00b7 ${d.stats.chunks.toLocaleString()} chunks \u00b7 ${d.stats.embeddings.toLocaleString()} embeddings`;
+                        const pct = d.embedding_coverage_pct || 0;
+                        kbBar.style.setProperty('--kb-progress', pct + '%');
+                        kbPct.textContent = pct + '%';
+                    } else {
+                        status.textContent = 'Connected';
+                        kbBanner.style.display = 'none';
+                    }
+                    status.className = 'status connected';
+                })
+                .catch(() => {
+                    status.textContent = 'Disconnected';
+                    status.className = 'status';
+                    kbBanner.style.display = 'none';
+                });
+        }
+        checkHealth();
+        setInterval(checkHealth, 30000);
+
+        // ===== Copy / Export Chat =====
+        function getChatText() {
+            const date = new Date().toLocaleString();
+            let text = `WiseOldMan.Ai Chat Export \u2014 ${date}\n\n`;
+            conversationHistory.forEach(msg => {
+                const label = msg.role === 'user' ? '[You]' : '[Wise Old Man]';
+                text += `${label}: ${msg.content}\n\n`;
+            });
+            return text.trim();
+        }
+
+        copyBtn.addEventListener('click', () => {
+            const text = getChatText();
+            if (!text || conversationHistory.length === 0) return;
+            navigator.clipboard.writeText(text).then(() => {
+                copyBtn.textContent = 'Copied!';
+                copyBtn.classList.add('flash');
+                setTimeout(() => {
+                    copyBtn.textContent = 'Copy';
+                    copyBtn.classList.remove('flash');
+                }, 1200);
+            });
+        });
+
+        exportBtn.addEventListener('click', () => {
+            const text = getChatText();
+            if (!text || conversationHistory.length === 0) return;
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `wiseoldman-chat-${new Date().toISOString().slice(0,10)}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+
+        // Clear chat
+        clearBtn.addEventListener('click', clearChat);
+        function clearChat() {
+            conversationHistory = [];
+            saveState();
+            chat.innerHTML = `<div class="bot-row">
+                <div class="bot-avatar"><img src="/static/wise_old_man.png" alt="WOM"></div>
+                <div class="message bot">
+                    <div class="answer">Greetings, adventurer! I'm the Wise Old Man \u2014 ask me anything about Old School RuneScape.</div>
+                </div>
+            </div>
+            <div id="starterQuestions" class="starter-grid">
+                <button class="starter-pill" data-q="What are the requirements for Dragon Slayer II?">Dragon Slayer II requirements?</button>
+                <button class="starter-pill" data-q="What are good mid-level money making methods?">Mid-level money making?</button>
+                <button class="starter-pill" data-q="How do I get to Fossil Island and what can I do there?">Getting to Fossil Island?</button>
+                <button class="starter-pill" data-q="What gear should I bring to fight Zulrah?">Zulrah gear setup?</button>
+                <button class="starter-pill" data-q="Can you explain tick manipulation for skilling?">Tick manipulation explained?</button>
+                <button class="starter-pill" data-q="What quests do I need for Barrows Gloves?">Barrows Gloves quest reqs?</button>
+            </div>`;
+            // Re-bind starter events (event delegation on #chat handles it)
+        }
+
+        // Save game mode changes
+        gameMode.addEventListener('change', saveState);
+
+        // Restore previous session
+        loadState();
+
+        let lastQuestion = '';
+
+        async function askQuestion(retryQuestion) {
+            const q = retryQuestion || input.value.trim();
+            if (!q) return;
+
+            lastQuestion = q;
+            hideStarters();
+
+            // Add user message to conversation history (only if not a retry)
+            if (!retryQuestion) {
+                conversationHistory.push({ role: 'user', content: q });
+
+                const userMsg = document.createElement('div');
+                userMsg.className = 'message user';
+                userMsg.textContent = q;
+                chat.appendChild(userMsg);
+
+                input.value = '';
+                input.style.height = 'auto';
+            }
+
+            sendBtn.disabled = true;
+
+            // Create bot message row with avatar
+            const botRow = document.createElement('div');
+            botRow.className = 'bot-row';
+            botRow.innerHTML = '<div class="bot-avatar"><img src="/static/wise_old_man.png" alt="WOM"></div>';
+
+            const botMsg = document.createElement('div');
+            botMsg.className = 'message bot';
+            botMsg.innerHTML = '<div class="answer typing">Thinking</div>';
+            botRow.appendChild(botMsg);
+            chat.appendChild(botRow);
+            chat.scrollTop = chat.scrollHeight;
+
+            const answerDiv = botMsg.querySelector('.answer');
+
+            // AbortController for cancellation
+            const abortController = new AbortController();
+            activeAbort = abortController;
+
+            try {
+                // Send last 10 messages as context
+                const recentMessages = conversationHistory.slice(-10);
+                const response = await fetch('/api/chat/stream', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question: q, game_mode: gameMode.value, messages: recentMessages }),
+                    signal: abortController.signal,
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server error (${response.status})`);
+                }
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let fullText = '';
+                let sources = [];
+                let model = '';
+                let buffer = '';
+                let renderScheduled = false;
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop(); // Keep incomplete line in buffer
+
+                    for (const line of lines) {
+                        if (!line.startsWith('data: ')) continue;
+                        try {
+                            const data = JSON.parse(line.slice(6));
+                            if (data.type === 'sources') {
+                                sources = data.sources;
+                            } else if (data.type === 'chunk') {
+                                if (answerDiv.classList.contains('typing')) {
+                                    answerDiv.classList.remove('typing');
+                                    answerDiv.textContent = '';
+                                }
+                                fullText += data.text;
+                                // Live markdown rendering via requestAnimationFrame
+                                if (!renderScheduled) {
+                                    renderScheduled = true;
+                                    requestAnimationFrame(() => {
+                                        answerDiv.innerHTML = renderMarkdown(fullText);
+                                        renderScheduled = false;
+                                        if (!userScrolledUp) chat.scrollTop = chat.scrollHeight;
+                                    });
+                                }
+                            } else if (data.type === 'done') {
+                                model = data.model;
+                                playChime();
+                            }
+                        } catch (parseErr) {}
+                    }
+                }
+
+                activeAbort = null;
+
+                if (fullText) {
+                    answerDiv.innerHTML = renderMarkdown(fullText);
+                    // Add assistant response to conversation history
+                    conversationHistory.push({ role: 'assistant', content: fullText });
+                    saveState();
+                }
+
+                if (sources.length > 0) {
+                    const srcDiv = document.createElement('div');
+                    srcDiv.className = 'sources';
+                    const srcLinks = sources.map(s => {
+                        const safeTitle = s.title.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                        const safeUrl = encodeURI(s.url);
+                        return `<a href="${safeUrl}" target="_blank" rel="noopener">${safeTitle}</a>`;
+                    }).join(' \u00b7 ');
+                    srcDiv.innerHTML = 'Sources: ' + srcLinks;
+                    botMsg.appendChild(srcDiv);
+                }
+
+                if (model) {
+                    const metaDiv = document.createElement('div');
+                    metaDiv.className = 'meta';
+                    metaDiv.textContent = `${model} \u00b7 ${gameMode.value}`;
+                    botMsg.appendChild(metaDiv);
+                }
+
+            } catch (err) {
+                activeAbort = null;
+                answerDiv.classList.remove('typing');
+
+                if (err.name === 'AbortError') {
+                    // User cancelled — render what we have
+                    const partialText = answerDiv.textContent || '';
+                    if (partialText) {
+                        answerDiv.innerHTML = renderMarkdown(partialText);
+                    } else {
+                        answerDiv.innerHTML = '<span style="color:var(--color-sources)">Request cancelled.</span>';
+                    }
+                    const cancelDiv = document.createElement('div');
+                    cancelDiv.className = 'cancelled';
+                    cancelDiv.textContent = '(cancelled)';
+                    botMsg.appendChild(cancelDiv);
+                    // Don't add cancelled response to history
+                    if (conversationHistory.length && conversationHistory[conversationHistory.length - 1].role === 'user') {
+                        conversationHistory.pop();
+                    }
+                } else {
+                    answerDiv.innerHTML = `<span style="color:var(--color-red)">Could not get a response. Is the server running?</span>
+                        <br><button class="retry-btn" onclick="retryLast()">Retry</button>`;
+                    // Remove the failed user message from history so retry works cleanly
+                    if (!retryQuestion && conversationHistory.length && conversationHistory[conversationHistory.length - 1].role === 'user') {
+                        conversationHistory.pop();
+                    }
+                }
+            }
+
+            sendBtn.disabled = false;
+            input.focus();
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        function retryLast() {
+            if (!lastQuestion) return;
+            // Remove the failed bot row
+            const rows = chat.querySelectorAll('.bot-row');
+            if (rows.length > 0) {
+                const lastRow = rows[rows.length - 1];
+                const errBtn = lastRow.querySelector('.retry-btn');
+                if (errBtn) lastRow.remove();
+            }
+            askQuestion(lastQuestion);
+        }
+
+        sendBtn.addEventListener('click', () => askQuestion());
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                askQuestion();
+            }
+        });
+
+        // ===== Keyboard Shortcuts =====
+        const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+        function isModKey(e) { return isMac ? e.metaKey : e.ctrlKey; }
+
+        document.addEventListener('keydown', (e) => {
+            // Escape — cancel stream, close overlay, or clear input
+            if (e.key === 'Escape') {
+                if (shortcutsOverlay.classList.contains('visible')) {
+                    shortcutsOverlay.classList.remove('visible');
+                    return;
+                }
+                if (activeAbort) {
+                    activeAbort.abort();
+                    activeAbort = null;
+                    return;
+                }
+                if (input.value) {
+                    input.value = '';
+                    input.style.height = 'auto';
+                    return;
+                }
+            }
+            // Ctrl/Cmd+L — Clear chat
+            if (isModKey(e) && e.key === 'l') {
+                e.preventDefault();
+                clearChat();
+                return;
+            }
+            // Ctrl/Cmd+/ — Show shortcuts
+            if (isModKey(e) && e.key === '/') {
+                e.preventDefault();
+                shortcutsOverlay.classList.toggle('visible');
+                return;
+            }
+            // Ctrl/Cmd+Shift+C — Copy chat
+            if (isModKey(e) && e.shiftKey && e.key === 'C') {
+                e.preventDefault();
+                copyBtn.click();
+                return;
+            }
+        });
+
+        shortcutsClose.addEventListener('click', () => {
+            shortcutsOverlay.classList.remove('visible');
+        });
+        shortcutsOverlay.addEventListener('click', (e) => {
+            if (e.target === shortcutsOverlay) shortcutsOverlay.classList.remove('visible');
+        });
+
+        // Update shortcut labels for Mac
+        if (isMac) {
+            document.querySelectorAll('.shortcut-row kbd').forEach(kbd => {
+                kbd.textContent = kbd.textContent.replace('Ctrl', '\u2318');
+            });
+        }
+    </script>
+</body>
+</html>
