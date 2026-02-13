@@ -1030,7 +1030,6 @@
         const exportBtn = document.getElementById('exportBtn');
         const themeBtn = document.getElementById('themeBtn');
         const soundBtn = document.getElementById('soundBtn');
-        const starterEl = document.getElementById('starterQuestions');
         const shortcutsOverlay = document.getElementById('shortcutsOverlay');
         const shortcutsClose = document.getElementById('shortcutsClose');
 
@@ -1127,13 +1126,18 @@
         }
 
         // ===== Starter Questions =====
+        // Use functions that query the DOM each time, since clearChat()
+        // replaces innerHTML and destroys the old #starterQuestions element.
         function hideStarters() {
-            if (starterEl) starterEl.style.display = 'none';
+            const el = document.getElementById('starterQuestions');
+            if (el) el.style.display = 'none';
         }
         function showStarters() {
-            if (starterEl) starterEl.style.display = '';
+            const el = document.getElementById('starterQuestions');
+            if (el) el.style.display = '';
         }
-        starterEl.addEventListener('click', (e) => {
+        // Event delegation on #chat — survives innerHTML replacement
+        chat.addEventListener('click', (e) => {
             const pill = e.target.closest('.starter-pill');
             if (!pill) return;
             input.value = pill.dataset.q;
