@@ -973,7 +973,6 @@
                 <option value="group_ironman">Group Ironman</option>
             </select>
             <div class="header-right">
-                <span class="status" id="status">Checking...</span>
                 <button class="hdr-btn" id="themeBtn" title="Toggle theme">Theme</button>
                 <button class="hdr-btn" id="soundBtn" title="Toggle sound notifications">Sound</button>
                 <button class="hdr-btn" id="copyBtn" title="Copy chat to clipboard">Copy</button>
@@ -981,19 +980,6 @@
                 <button class="hdr-btn clear-btn" id="clearBtn" title="Clear chat (Ctrl+L)">Clear</button>
             </div>
         </header>
-        <div id="kb-banner" class="kb-banner" style="display:none">
-            <div class="kb-banner-content">
-                <span class="kb-icon">⚒️</span>
-                <div class="kb-text">
-                    <strong>Building Knowledge Base</strong>
-                    <span id="kb-status">Initializing...</span>
-                </div>
-                <div class="kb-bar-wrap">
-                    <div class="kb-bar" id="kb-bar"></div>
-                    <span class="kb-pct" id="kb-pct">0%</span>
-                </div>
-            </div>
-        </div>
         <div class="chat-wrapper">
             <div class="vignette-top"></div>
             <div id="chat">
@@ -1037,7 +1023,6 @@
         const chat = document.getElementById('chat');
         const input = document.getElementById('question');
         const sendBtn = document.getElementById('send');
-        const status = document.getElementById('status');
         const gameMode = document.getElementById('gameMode');
         const clearBtn = document.getElementById('clearBtn');
         const scrollBtn = document.getElementById('scrollBtn');
@@ -1204,47 +1189,9 @@
             return html;
         }
 
-        // KB banner elements
-        const kbBanner = document.getElementById('kb-banner');
-        const kbStatus = document.getElementById('kb-status');
-        const kbBar = document.getElementById('kb-bar');
-        const kbPct = document.getElementById('kb-pct');
-
-        // Health check with live stats
+        // Silent health check — just verify backend is reachable
         function checkHealth() {
-            fetch('/api/health')
-                .then(r => r.json())
-                .then(d => {
-                    if (d.rag_ready) {
-                        let txt = `RAG Ready (${d.stats.embeddings.toLocaleString()} embeddings)`;
-                        if (d.embedding_coverage_pct !== undefined) {
-                            txt += ` \u00b7 ${d.embedding_coverage_pct}% coverage`;
-                        }
-                        status.textContent = txt;
-                        kbBanner.style.display = 'none';
-                    } else if (d.stats.chunks > 0) {
-                        let txt = `Scraping... ${d.stats.pages.toLocaleString()} pages`;
-                        if (d.embedding_coverage_pct !== undefined && d.embedding_coverage_pct > 0) {
-                            txt += ` (${d.embedding_coverage_pct}%)`;
-                        }
-                        status.textContent = txt;
-                        // Show KB banner with progress
-                        kbBanner.style.display = '';
-                        kbStatus.textContent = `${d.stats.pages.toLocaleString()} pages scraped \u00b7 ${d.stats.chunks.toLocaleString()} chunks \u00b7 ${d.stats.embeddings.toLocaleString()} embeddings`;
-                        const pct = d.embedding_coverage_pct || 0;
-                        kbBar.style.setProperty('--kb-progress', pct + '%');
-                        kbPct.textContent = pct + '%';
-                    } else {
-                        status.textContent = 'Connected';
-                        kbBanner.style.display = 'none';
-                    }
-                    status.className = 'status connected';
-                })
-                .catch(() => {
-                    status.textContent = 'Disconnected';
-                    status.className = 'status';
-                    kbBanner.style.display = 'none';
-                });
+            fetch('/api/health').catch(() => {});
         }
         checkHealth();
         setInterval(checkHealth, 30000);
