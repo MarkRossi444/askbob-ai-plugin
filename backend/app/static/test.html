@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>WiseOldMan.Ai — Test Chat</title>
+    <title>AskBob.Ai — Test Chat</title>
     <style>
         /* ===== CSS Custom Properties (Theme System) ===== */
         :root {
@@ -222,7 +222,7 @@
             box-shadow: 0 0 6px rgba(255, 215, 0, 0.25);
         }
 
-        /* Wise Old Man chathead icon */
+        /* Bob the Cat chathead icon */
         .header-icon {
             width: 34px;
             height: 34px;
@@ -963,8 +963,8 @@
 <body>
     <div class="panel-container">
         <header>
-            <div class="header-icon"><img src="/static/wise_old_man.png" alt="Wise Old Man"></div>
-            <h1>WiseOldMan.Ai</h1>
+            <div class="header-icon"><img src="/static/bob_the_cat.png" alt="Bob the Cat"></div>
+            <h1>AskBob.Ai</h1>
             <select id="gameMode">
                 <option value="main">Main</option>
                 <option value="ironman">Ironman</option>
@@ -984,9 +984,9 @@
             <div class="vignette-top"></div>
             <div id="chat">
                 <div class="bot-row">
-                    <div class="bot-avatar"><img src="/static/wise_old_man.png" alt="WOM"></div>
+                    <div class="bot-avatar"><img src="/static/bob_the_cat.png" alt="Bob"></div>
                     <div class="message bot">
-                        <div class="answer">Greetings, adventurer! I'm the Wise Old Man — ask me anything about Old School RuneScape.</div>
+                        <div class="answer">Meow! I'm Bob the Cat — ask me anything about Old School RuneScape.</div>
                     </div>
                 </div>
                 <div id="starterQuestions" class="starter-grid">
@@ -1040,7 +1040,7 @@
         let activeAbort = null;
 
         // ===== Theme =====
-        const THEME_KEY = 'wom_theme';
+        const THEME_KEY = 'askbob_theme';
         function applyTheme(theme) {
             document.documentElement.setAttribute('data-theme', theme);
             localStorage.setItem(THEME_KEY, theme);
@@ -1053,7 +1053,7 @@
         });
 
         // ===== Sound notification =====
-        const SOUND_KEY = 'wom_sound';
+        const SOUND_KEY = 'askbob_sound';
         let soundEnabled = localStorage.getItem(SOUND_KEY) !== 'off';
         function updateSoundBtn() {
             soundBtn.textContent = soundEnabled ? 'Mute' : 'Unmute';
@@ -1084,7 +1084,7 @@
         }
 
         // ===== localStorage persistence =====
-        const STORAGE_KEY = 'wom_chat_state';
+        const STORAGE_KEY = 'askbob_chat_state';
         function saveState() {
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify({
@@ -1112,7 +1112,7 @@
                         } else {
                             const botRow = document.createElement('div');
                             botRow.className = 'bot-row';
-                            botRow.innerHTML = '<div class="bot-avatar"><img src="/static/wise_old_man.png" alt="WOM"></div>';
+                            botRow.innerHTML = '<div class="bot-avatar"><img src="/static/bob_the_cat.png" alt="Bob"></div>';
                             const botMsg = document.createElement('div');
                             botMsg.className = 'message bot';
                             botMsg.innerHTML = '<div class="answer">' + renderMarkdown(msg.content) + '</div>';
@@ -1203,9 +1203,9 @@
         // ===== Copy / Export Chat =====
         function getChatText() {
             const date = new Date().toLocaleString();
-            let text = `WiseOldMan.Ai Chat Export \u2014 ${date}\n\n`;
+            let text = `AskBob.Ai Chat Export \u2014 ${date}\n\n`;
             conversationHistory.forEach(msg => {
-                const label = msg.role === 'user' ? '[You]' : '[Wise Old Man]';
+                const label = msg.role === 'user' ? '[You]' : '[Bob the Cat]';
                 text += `${label}: ${msg.content}\n\n`;
             });
             return text.trim();
@@ -1231,7 +1231,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `wiseoldman-chat-${new Date().toISOString().slice(0,10)}.txt`;
+            a.download = `askbob-chat-${new Date().toISOString().slice(0,10)}.txt`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -1244,9 +1244,9 @@
             conversationHistory = [];
             saveState();
             chat.innerHTML = `<div class="bot-row">
-                <div class="bot-avatar"><img src="/static/wise_old_man.png" alt="WOM"></div>
+                <div class="bot-avatar"><img src="/static/bob_the_cat.png" alt="Bob"></div>
                 <div class="message bot">
-                    <div class="answer">Greetings, adventurer! I'm the Wise Old Man \u2014 ask me anything about Old School RuneScape.</div>
+                    <div class="answer">Meow! I'm Bob the Cat \u2014 ask me anything about Old School RuneScape.</div>
                 </div>
             </div>
             <div id="starterQuestions" class="starter-grid">
@@ -1293,7 +1293,7 @@
             // Create bot message row with avatar
             const botRow = document.createElement('div');
             botRow.className = 'bot-row';
-            botRow.innerHTML = '<div class="bot-avatar"><img src="/static/wise_old_man.png" alt="WOM"></div>';
+            botRow.innerHTML = '<div class="bot-avatar"><img src="/static/bob_the_cat.png" alt="Bob"></div>';
 
             const botMsg = document.createElement('div');
             botMsg.className = 'message bot';
