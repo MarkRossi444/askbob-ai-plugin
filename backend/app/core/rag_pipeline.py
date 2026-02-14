@@ -113,9 +113,10 @@ class RagPipeline:
             raise RuntimeError(f"Failed to generate response: {e}") from e
 
         sources = self._build_sources(results)
+        attribution = self._build_attribution(sources)
 
         return ChatResponse(
-            answer=answer_text,
+            answer=answer_text + attribution,
             sources=sources,
             game_mode=game_mode,
             model=model_used,
@@ -188,6 +189,11 @@ class RagPipeline:
             logger.error(f"LLM stream failed: {e}", exc_info=True)
             yield f"data: {json.dumps({'type': 'error', 'message': 'Response generation failed. Please try again.'})}\n\n"
 
+        # Append wiki attribution as final text chunk
+        attribution = self._build_attribution(sources)
+        if attribution:
+            yield f"data: {json.dumps({'type': 'chunk', 'text': attribution})}\n\n"
+
         yield f"data: {json.dumps({'type': 'done', 'model': model_used, 'game_mode': game_mode})}\n\n"
 
     def _build_sources(self, results: list[SearchResult]) -> list[Source]:
@@ -210,3 +216,17 @@ class RagPipeline:
             )
 
         return sources[:5]
+
+    @staticmethod
+    def _build_attribution(sources: list[Source]) -> str:
+        """Build a markdown attribution footer for wiki source citations."""
+        if not sources:
+            return ""
+
+        links = [f"[{s.title}]({s.url})" for s in sources]
+        return (
+            "\n\n---\n"
+            "*Sources: " + " · ".join(links) + "*\n"
+            "*Content from the [OSRS Wiki](https://oldschool.runescape.wiki) "
+            "under [CC BY-NC-SA 3.0](https://creativecommons.org/licenses/by-nc-sa/3.0/)*"
+        )

@@ -42,7 +42,8 @@ Rules:
 - For quest questions, give step-by-step guidance with requirements upfront
 - For gear/loadout questions, consider budget tiers (welfare → mid-level → BIS)
 - If this is a follow-up question in a conversation, reference what was discussed before naturally
-- If player context is provided (skills, quests, etc.), use it to give personalized advice. Reference their actual levels and completed quests"""
+- If player context is provided (skills, quests, etc.), use it to give personalized advice. Reference their actual levels and completed quests
+- When referencing specific wiki information, mention the page name naturally (e.g. "According to the Dragon Slayer II page..." or "The wiki's Barrows page lists...")"""
 
 GAME_MODE_CONTEXT = {
     "main": "The player is on a regular main account. They have access to the Grand Exchange and can trade freely with other players.",
