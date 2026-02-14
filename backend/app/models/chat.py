@@ -18,6 +18,10 @@ class ChatRequest(BaseModel):
         max_length=20,
         description="Previous conversation messages for multi-turn context",
     )
+    player_context: dict | None = Field(
+        default=None,
+        description="Live player data: skills, quests, account type, location, diaries",
+    )
 
     class Config:
         json_schema_extra = {
@@ -28,6 +32,14 @@ class ChatRequest(BaseModel):
                     {"role": "user", "content": "Tell me about Dragon Slayer II"},
                     {"role": "assistant", "content": "Dragon Slayer II is a grandmaster quest..."},
                 ],
+                "player_context": {
+                    "account_type": "IRONMAN",
+                    "combat_level": 95,
+                    "total_level": 1456,
+                    "skills": {"attack": {"level": 75, "xp": 1210421}},
+                    "quests_completed": ["Dragon Slayer I"],
+                    "quests_in_progress": ["Song of the Elves"],
+                },
             }
         }
 

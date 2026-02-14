@@ -30,7 +30,7 @@ public class WiseOldManApiClient
             .build();
     }
 
-    public void askQuestion(String question, String gameMode, List<JsonObject> messages, ApiCallback callback)
+    public void askQuestion(String question, String gameMode, List<JsonObject> messages, JsonObject playerContext, ApiCallback callback)
     {
         if (question == null || question.trim().isEmpty())
         {
@@ -54,6 +54,11 @@ public class WiseOldManApiClient
                 messagesArray.add(msg);
             }
             body.add("messages", messagesArray);
+        }
+
+        if (playerContext != null)
+        {
+            body.add("player_context", playerContext);
         }
 
         Request request = new Request.Builder()

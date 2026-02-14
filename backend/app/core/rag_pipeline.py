@@ -51,6 +51,7 @@ class RagPipeline:
         question: str,
         game_mode: str = "main",
         conversation_history: list[dict] | None = None,
+        player_context: dict | None = None,
     ) -> ChatResponse:
         """
         Full RAG pipeline: search wiki → build context → ask Claude.
@@ -105,6 +106,7 @@ class RagPipeline:
                 game_mode=game_mode,
                 use_deep_model=use_deep,
                 conversation_history=conversation_history,
+                player_context=player_context,
             )
         except Exception as e:
             logger.error(f"LLM generation failed: {e}", exc_info=True)
@@ -124,6 +126,7 @@ class RagPipeline:
         question: str,
         game_mode: str = "main",
         conversation_history: list[dict] | None = None,
+        player_context: dict | None = None,
     ) -> AsyncGenerator[str, None]:
         """
         Streaming RAG pipeline. Yields Server-Sent Events (SSE).
@@ -177,6 +180,7 @@ class RagPipeline:
                 game_mode=game_mode,
                 use_deep_model=use_deep,
                 conversation_history=conversation_history,
+                player_context=player_context,
             ):
                 model_used = model
                 yield f"data: {json.dumps({'type': 'chunk', 'text': text_chunk})}\n\n"

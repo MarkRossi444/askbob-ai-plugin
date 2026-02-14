@@ -51,6 +51,91 @@ GAME_MODE_CONTEXT = {
 }
 
 
+ACCOUNT_TYPE_MAP = {
+    "NORMAL": "main",
+    "IRONMAN": "ironman",
+    "HARDCORE_IRONMAN": "hardcore_ironman",
+    "ULTIMATE_IRONMAN": "ultimate_ironman",
+    "GROUP_IRONMAN": "group_ironman",
+    "HARDCORE_GROUP_IRONMAN": "group_ironman",
+    "UNRANKED_GROUP_IRONMAN": "group_ironman",
+}
+
+
+def _account_type_to_game_mode(account_type: str) -> str | None:
+    """Map a RuneLite AccountType name to a backend game_mode string."""
+    return ACCOUNT_TYPE_MAP.get(account_type)
+
+
+def _format_player_context(ctx: dict) -> str:
+    """
+    Format player context dict into a compact, human-readable text block
+    that Claude can reference naturally in its responses.
+    """
+    lines = []
+
+    # Header line: Account | Combat | Total
+    header_parts = []
+    if "account_type" in ctx:
+        header_parts.append(f"Account: {ctx['account_type']}")
+    if "player_name" in ctx:
+        header_parts.append(f"Player: {ctx['player_name']}")
+    if "combat_level" in ctx:
+        header_parts.append(f"Combat: {ctx['combat_level']}")
+    if "total_level" in ctx:
+        header_parts.append(f"Total Level: {ctx['total_level']}")
+    if header_parts:
+        lines.append(" | ".join(header_parts))
+
+    # Skills — compact single line per skill
+    skills = ctx.get("skills")
+    if skills and isinstance(skills, dict):
+        skill_parts = []
+        for name, data in skills.items():
+            if isinstance(data, dict) and "level" in data:
+                skill_parts.append(f"{name.capitalize()} {data['level']}")
+            elif isinstance(data, (int, float)):
+                skill_parts.append(f"{name.capitalize()} {int(data)}")
+        if skill_parts:
+            lines.append(f"Skills: {', '.join(skill_parts)}")
+
+    # Quests completed
+    completed = ctx.get("quests_completed")
+    if completed and isinstance(completed, list):
+        count = len(completed)
+        # Show up to 30 quest names to keep payload reasonable
+        if count <= 30:
+            quest_list = ", ".join(completed)
+        else:
+            quest_list = ", ".join(completed[:30]) + f", ... (+{count - 30} more)"
+        lines.append(f"Completed Quests ({count}): {quest_list}")
+
+    # Quests in progress
+    in_progress = ctx.get("quests_in_progress")
+    if in_progress and isinstance(in_progress, list):
+        lines.append(f"In-Progress Quests ({len(in_progress)}): {', '.join(in_progress)}")
+
+    # Achievement diaries — compact format
+    diaries = ctx.get("diaries")
+    if diaries and isinstance(diaries, dict):
+        diary_parts = []
+        for region, tiers in diaries.items():
+            if not isinstance(tiers, dict):
+                continue
+            done_tiers = [t.capitalize() for t in ("easy", "medium", "hard", "elite") if tiers.get(t)]
+            if done_tiers:
+                diary_parts.append(f"{region.capitalize()} ({'/'.join(done_tiers)})")
+        if diary_parts:
+            lines.append(f"Diaries: {', '.join(diary_parts)}")
+
+    # Location
+    loc = ctx.get("location")
+    if loc and isinstance(loc, dict) and "x" in loc and "y" in loc:
+        lines.append(f"Location: ({loc['x']}, {loc['y']}, plane {loc.get('plane', 0)})")
+
+    return "\n".join(lines)
+
+
 class LlmClient:
     """Anthropic Claude client for generating OSRS expert responses."""
 
@@ -64,6 +149,7 @@ class LlmClient:
         game_mode: str = "main",
         use_deep_model: bool = False,
         conversation_history: list[dict] | None = None,
+        player_context: dict | None = None,
     ) -> tuple[str, str]:
         """
         Generate an answer using Claude, grounded in wiki context.
@@ -72,12 +158,13 @@ class LlmClient:
             conversation_history: Optional list of previous messages
                 [{"role": "user"/"assistant", "content": "..."}].
                 Limited to the last 10 messages to avoid context overflow.
+            player_context: Optional dict with live player data (skills, quests, etc.)
 
         Returns:
             Tuple of (answer_text, model_used)
         """
         model = MODEL_DEEP if use_deep_model else MODEL_QUICK
-        user_message = self._build_user_message(question, context_chunks, game_mode)
+        user_message = self._build_user_message(question, context_chunks, game_mode, player_context)
         messages = self._build_messages(user_message, conversation_history)
 
         try:
@@ -104,6 +191,7 @@ class LlmClient:
         game_mode: str = "main",
         use_deep_model: bool = False,
         conversation_history: list[dict] | None = None,
+        player_context: dict | None = None,
     ) -> AsyncGenerator[tuple[str, str], None]:
         """
         Stream an answer using Claude, yielding text chunks as they arrive.
@@ -112,12 +200,13 @@ class LlmClient:
             conversation_history: Optional list of previous messages
                 [{"role": "user"/"assistant", "content": "..."}].
                 Limited to the last 10 messages to avoid context overflow.
+            player_context: Optional dict with live player data (skills, quests, etc.)
 
         Yields:
             Tuples of (text_chunk, model_used)
         """
         model = MODEL_DEEP if use_deep_model else MODEL_QUICK
-        user_message = self._build_user_message(question, context_chunks, game_mode)
+        user_message = self._build_user_message(question, context_chunks, game_mode, player_context)
         messages = self._build_messages(user_message, conversation_history)
 
         try:
@@ -135,20 +224,45 @@ class LlmClient:
             raise
 
     def _build_user_message(
-        self, question: str, context_chunks: list[dict], game_mode: str
+        self,
+        question: str,
+        context_chunks: list[dict],
+        game_mode: str,
+        player_context: dict | None = None,
     ) -> str:
-        """Build the full user message with context and game mode."""
+        """Build the full user message with player context, wiki context, and game mode."""
         context_text = self._build_context(context_chunks)
+
+        # Auto-detect game mode from player context if available
+        if player_context and "account_type" in player_context:
+            detected = _account_type_to_game_mode(player_context["account_type"])
+            if detected:
+                game_mode = detected
+
         mode_context = GAME_MODE_CONTEXT.get(game_mode, GAME_MODE_CONTEXT["main"])
 
-        return f"""Game Mode: {game_mode}
-{mode_context}
+        parts = [
+            f"Game Mode: {game_mode}",
+            mode_context,
+        ]
 
---- OSRS Wiki Context ---
-{context_text}
---- End Context ---
+        # Inject player context between game mode and wiki context
+        if player_context:
+            player_text = _format_player_context(player_context)
+            if player_text:
+                parts.append("")
+                parts.append("--- Player Context ---")
+                parts.append(player_text)
+                parts.append("--- End Player Context ---")
 
-Player's Question: {question}"""
+        parts.append("")
+        parts.append("--- OSRS Wiki Context ---")
+        parts.append(context_text)
+        parts.append("--- End Context ---")
+        parts.append("")
+        parts.append(f"Player's Question: {question}")
+
+        return "\n".join(parts)
 
     def _build_messages(
         self, current_user_message: str, conversation_history: list[dict] | None = None

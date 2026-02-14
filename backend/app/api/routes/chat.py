@@ -47,6 +47,7 @@ async def chat(chat_request: ChatRequest, request: Request):
                 question=chat_request.question,
                 game_mode=chat_request.game_mode,
                 conversation_history=conversation_history,
+                player_context=chat_request.player_context,
             ),
             timeout=45.0,
         )
@@ -136,6 +137,7 @@ async def chat_stream(chat_request: ChatRequest, request: Request):
             question=chat_request.question,
             game_mode=chat_request.game_mode,
             conversation_history=conversation_history,
+            player_context=chat_request.player_context,
         )),
         media_type="text/event-stream",
         headers={

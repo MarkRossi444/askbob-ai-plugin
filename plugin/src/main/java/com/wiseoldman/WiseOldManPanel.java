@@ -35,6 +35,7 @@ public class WiseOldManPanel extends PluginPanel
     private final List<JsonObject> conversationHistory = new ArrayList<>();
 
     private WiseOldManApiClient apiClient;
+    private volatile JsonObject playerContext;
     private JTextArea activeBotTextArea;
     private boolean isRequestInProgress;
 
@@ -123,6 +124,11 @@ public class WiseOldManPanel extends PluginPanel
         this.apiClient = apiClient;
     }
 
+    public void setPlayerContext(JsonObject playerContext)
+    {
+        this.playerContext = playerContext;
+    }
+
     private void sendMessage()
     {
         if (isRequestInProgress)
@@ -165,8 +171,20 @@ public class WiseOldManPanel extends PluginPanel
         // Send last N messages as context
         List<JsonObject> context = getRecentHistory();
 
+        // Auto-detect game mode from player context, fall back to config
         String gameMode = config.gameMode().name().toLowerCase();
-        apiClient.askQuestion(message, gameMode, context, new WiseOldManApiClient.ApiCallback()
+        JsonObject ctx = playerContext;
+        if (ctx != null && ctx.has("account_type"))
+        {
+            String detected = PlayerContextBuilder.accountTypeToGameMode(
+                ctx.get("account_type").getAsString());
+            if (detected != null)
+            {
+                gameMode = detected;
+            }
+        }
+
+        apiClient.askQuestion(message, gameMode, context, ctx, new WiseOldManApiClient.ApiCallback()
         {
             @Override
             public void onSuccess(String answer)

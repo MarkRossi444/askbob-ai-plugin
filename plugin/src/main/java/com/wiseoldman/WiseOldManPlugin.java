@@ -1,11 +1,14 @@
 package com.wiseoldman;
 
+import com.google.gson.JsonObject;
 import com.wiseoldman.api.WiseOldManApiClient;
 
 import javax.inject.Inject;
 import java.awt.image.BufferedImage;
 
 import net.runelite.api.Client;
+import net.runelite.api.events.GameTick;
+import net.runelite.client.callback.ClientThread;
 import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
@@ -21,6 +24,8 @@ import net.runelite.client.util.ImageUtil;
 )
 public class WiseOldManPlugin extends Plugin
 {
+    private static final int CONTEXT_UPDATE_INTERVAL = 5; // Update every 5 game ticks (~3 seconds)
+
     @Inject
     private Client client;
 
@@ -29,6 +34,9 @@ public class WiseOldManPlugin extends Plugin
 
     @Inject
     private ClientToolbar clientToolbar;
+
+    @Inject
+    private ClientThread clientThread;
 
     private WiseOldManPanel panel;
     private NavigationButton navButton;
@@ -52,6 +60,21 @@ public class WiseOldManPlugin extends Plugin
             .build();
 
         clientToolbar.addNavigation(navButton);
+    }
+
+    @Subscribe
+    public void onGameTick(GameTick event)
+    {
+        if (client.getTickCount() % CONTEXT_UPDATE_INTERVAL != 0)
+        {
+            return;
+        }
+
+        JsonObject ctx = PlayerContextBuilder.build(client);
+        if (panel != null && ctx != null)
+        {
+            panel.setPlayerContext(ctx);
+        }
     }
 
     @Subscribe
