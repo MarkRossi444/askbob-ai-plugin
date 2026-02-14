@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    app_name: str = "WiseOldMan.Ai"
+    app_name: str = "AskBob.Ai"
     debug: bool = False
     log_level: str = "INFO"
 
@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     rate_limit_per_minute: int = 20
 
     # CORS — comma-separated origins, or "*" for open access
-    # For production, replace with specific domains (e.g. "https://wiseoldman.ai")
+    # For production, replace with specific domains (e.g. "https://askbob.ai")
     allowed_origins: str = "*"
 
     class Config:

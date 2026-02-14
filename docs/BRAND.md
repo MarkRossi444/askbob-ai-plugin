@@ -1,6 +1,6 @@
 # Brand Guidelines
 
-> Brand identity, voice, and visual standards for WiseOldMan.Ai.
+> Brand identity, voice, and visual standards for AskBob.Ai.
 
 ---
 
@@ -12,17 +12,27 @@ Active — this project has brand/design requirements.
 
 ## Brand Essence
 
-**Brand Name**: WiseOldMan.Ai
+**Brand Name**: AskBob.Ai
 **Tagline**: Your in-game OSRS expert.
 **Brand Promise**: Instant, accurate OSRS knowledge without leaving the game.
 **Core Values**: Accuracy, Speed, Accessibility, Community
 
 ---
 
+## Brand Personality
+
+The brand personality is inspired by **Bob the Cat** — the iconic, mysterious, and surprisingly knowledgeable cat found wandering around RuneScape. Bob the Cat has seen it all, traveled the world, and knows more than he lets on. He is casual, witty, and slightly aloof — but always has the answer when you need it. The AI assistant channels Bob's energy: approachable, effortlessly knowledgeable, and a beloved part of the OSRS world.
+
+- **Character Reference**: Bob the Cat (wanders Gielinor, former human Robert the Strong, reincarnated as a cat)
+- **Personality Traits**: Casual wisdom, dry wit, quietly omniscient, helpful when asked
+- **Vibe**: Like chatting with a chill, all-knowing cat who has been everywhere and done everything
+
+---
+
 ## Voice & Tone
 
 ### Brand Voice
-- **Knowledgeable**: Speaks with authority about OSRS — like a veteran player who knows everything
+- **Knowledgeable**: Speaks with authority about OSRS — like Bob the Cat who has seen it all across Gielinor
 - **Helpful**: Always focused on solving the player's problem, not showing off
 - **Concise**: Gives the answer first, details second — respects the player's time
 

@@ -1,6 +1,6 @@
 # Workflows
 
-> Agent sequences for WiseOldMan.Ai. Configured during setup based on active agent team.
+> Agent sequences for AskBob.Ai. Configured during setup based on active agent team.
 
 ---
 
@@ -107,4 +107,4 @@ Used for: Doc updates, session logging.
 
 | Date | Change | Author |
 |------|--------|--------|
-| 2026-02-12 | Initial workflows configured for WiseOldMan.Ai | Setup Agent |
+| 2026-02-12 | Initial workflows configured for AskBob.Ai | Setup Agent |

@@ -1,7 +1,7 @@
-package com.wiseoldman;
+package com.askbob;
 
 import com.google.gson.JsonObject;
-import com.wiseoldman.api.WiseOldManApiClient;
+import com.askbob.api.AskBobApiClient;
 
 import javax.inject.Inject;
 import java.awt.image.BufferedImage;
@@ -18,11 +18,11 @@ import net.runelite.client.ui.NavigationButton;
 import net.runelite.client.util.ImageUtil;
 
 @PluginDescriptor(
-    name = "WiseOldMan.Ai",
+    name = "AskBob.Ai",
     description = "AI-powered OSRS expert chatbot backed by the full OSRS wiki",
     tags = {"ai", "chat", "wiki", "helper", "guide"}
 )
-public class WiseOldManPlugin extends Plugin
+public class AskBobPlugin extends Plugin
 {
     private static final int CONTEXT_UPDATE_INTERVAL = 5; // Update every 5 game ticks (~3 seconds)
 
@@ -30,7 +30,7 @@ public class WiseOldManPlugin extends Plugin
     private Client client;
 
     @Inject
-    private WiseOldManConfig config;
+    private AskBobConfig config;
 
     @Inject
     private ClientToolbar clientToolbar;
@@ -38,22 +38,22 @@ public class WiseOldManPlugin extends Plugin
     @Inject
     private ClientThread clientThread;
 
-    private WiseOldManPanel panel;
+    private AskBobPanel panel;
     private NavigationButton navButton;
-    private WiseOldManApiClient apiClient;
+    private AskBobApiClient apiClient;
 
     @Override
     protected void startUp() throws Exception
     {
-        apiClient = new WiseOldManApiClient(config.apiUrl());
+        apiClient = new AskBobApiClient(config.apiUrl());
 
-        panel = new WiseOldManPanel(config);
+        panel = new AskBobPanel(config);
         panel.setApiClient(apiClient);
 
         final BufferedImage icon = ImageUtil.loadImageResource(getClass(), "icon.png");
 
         navButton = NavigationButton.builder()
-            .tooltip("WiseOldMan.Ai")
+            .tooltip("AskBob.Ai")
             .icon(icon)
             .priority(5)
             .panel(panel)
@@ -80,7 +80,7 @@ public class WiseOldManPlugin extends Plugin
     @Subscribe
     public void onConfigChanged(ConfigChanged event)
     {
-        if (!"wiseoldmanai".equals(event.getGroup()))
+        if (!"askbobai".equals(event.getGroup()))
         {
             return;
         }
@@ -91,7 +91,7 @@ public class WiseOldManPlugin extends Plugin
             {
                 apiClient.shutdown();
             }
-            apiClient = new WiseOldManApiClient(config.apiUrl());
+            apiClient = new AskBobApiClient(config.apiUrl());
             if (panel != null)
             {
                 panel.setApiClient(apiClient);

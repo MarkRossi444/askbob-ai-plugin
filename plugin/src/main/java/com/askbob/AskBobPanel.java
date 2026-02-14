@@ -1,7 +1,7 @@
-package com.wiseoldman;
+package com.askbob;
 
 import com.google.gson.JsonObject;
-import com.wiseoldman.api.WiseOldManApiClient;
+import com.askbob.api.AskBobApiClient;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ import javax.swing.text.DefaultCaret;
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.PluginPanel;
 
-public class WiseOldManPanel extends PluginPanel
+public class AskBobPanel extends PluginPanel
 {
     private static final Color GOLD = new Color(255, 215, 0);
     private static final Color DARK_BG = new Color(27, 27, 27);
@@ -31,15 +31,15 @@ public class WiseOldManPanel extends PluginPanel
     private final JTextField inputField;
     private final JButton sendButton;
     private final JScrollPane chatScrollPane;
-    private final WiseOldManConfig config;
+    private final AskBobConfig config;
     private final List<JsonObject> conversationHistory = new ArrayList<>();
 
-    private WiseOldManApiClient apiClient;
+    private AskBobApiClient apiClient;
     private volatile JsonObject playerContext;
     private JTextArea activeBotTextArea;
     private boolean isRequestInProgress;
 
-    public WiseOldManPanel(WiseOldManConfig config)
+    public AskBobPanel(AskBobConfig config)
     {
         super(false);
         this.config = config;
@@ -55,7 +55,7 @@ public class WiseOldManPanel extends PluginPanel
             new EmptyBorder(8, 10, 8, 10)
         ));
 
-        JLabel titleLabel = new JLabel("WiseOldMan.Ai");
+        JLabel titleLabel = new JLabel("AskBob.Ai");
         titleLabel.setForeground(GOLD);
         titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 13f));
         headerPanel.add(titleLabel, BorderLayout.WEST);
@@ -116,10 +116,10 @@ public class WiseOldManPanel extends PluginPanel
         add(inputPanel, BorderLayout.SOUTH);
 
         // Welcome message
-        addBotMessage("Greetings, adventurer. Ask me anything about Old School RuneScape.");
+        addBotMessage("Meow! Ask me anything about Old School RuneScape.");
     }
 
-    public void setApiClient(WiseOldManApiClient apiClient)
+    public void setApiClient(AskBobApiClient apiClient)
     {
         this.apiClient = apiClient;
     }
@@ -184,7 +184,7 @@ public class WiseOldManPanel extends PluginPanel
             }
         }
 
-        apiClient.askQuestion(message, gameMode, context, ctx, new WiseOldManApiClient.ApiCallback()
+        apiClient.askQuestion(message, gameMode, context, ctx, new AskBobApiClient.ApiCallback()
         {
             @Override
             public void onSuccess(String answer)

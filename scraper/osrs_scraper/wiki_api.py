@@ -17,7 +17,7 @@ import httpx
 logger = logging.getLogger(__name__)
 
 API_URL = "https://oldschool.runescape.wiki/api.php"
-USER_AGENT = "WiseOldManAi/1.0 (OSRS AI assistant; contact@wiseoldman.ai)"
+USER_AGENT = "AskBobAi/1.0 (OSRS AI assistant; contact@askbob.ai)"
 
 # Concurrency: 3 simultaneous requests with small delay between
 MAX_CONCURRENT = 3

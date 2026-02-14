@@ -1,4 +1,4 @@
-package com.wiseoldman.api;
+package com.askbob.api;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -12,7 +12,7 @@ import java.net.SocketTimeoutException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class WiseOldManApiClient
+public class AskBobApiClient
 {
     private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
     private static final Gson GSON = new Gson();
@@ -20,7 +20,7 @@ public class WiseOldManApiClient
     private final OkHttpClient httpClient;
     private final String baseUrl;
 
-    public WiseOldManApiClient(String baseUrl)
+    public AskBobApiClient(String baseUrl)
     {
         // Strip trailing slash to prevent double-slash URLs
         this.baseUrl = baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
@@ -74,7 +74,7 @@ public class WiseOldManApiClient
                 String message;
                 if (e instanceof ConnectException)
                 {
-                    message = "Cannot reach the WiseOldMan.Ai server. Is the backend running?";
+                    message = "Cannot reach the AskBob.Ai server. Is the backend running?";
                 }
                 else if (e instanceof SocketTimeoutException)
                 {

@@ -6,7 +6,7 @@
 
 ## Identity
 
-**Project Name**: `WiseOldMan.Ai`
+**Project Name**: `AskBob.Ai`
 **One-Line Description**: An AI-powered RuneLite plugin that gives OSRS players instant, expert-level game knowledge via an in-game chatbot backed by the full OSRS wiki.
 **Project Type**: `custom`
 
@@ -20,7 +20,7 @@ OSRS players constantly alt-tab out of the game to search the wiki for quest gui
 
 ## The Solution
 
-WiseOldMan.Ai is a RuneLite side-panel plugin that provides an AI chatbot powered by the entire OSRS wiki knowledge base. Players type questions in natural language and receive accurate, contextual answers without leaving the game. The AI understands game modes (main, ironman, UIM, HCIM, GIM), can provide quest walkthroughs, optimal training paths, money-making strategies, boss mechanics, and any other information found on the wiki — all delivered conversationally and tailored to the player's context.
+AskBob.Ai is a RuneLite side-panel plugin that provides an AI chatbot powered by the entire OSRS wiki knowledge base. Players type questions in natural language and receive accurate, contextual answers without leaving the game. The AI understands game modes (main, ironman, UIM, HCIM, GIM), can provide quest walkthroughs, optimal training paths, money-making strategies, boss mechanics, and any other information found on the wiki — all delivered conversationally and tailored to the player's context.
 
 ---
 

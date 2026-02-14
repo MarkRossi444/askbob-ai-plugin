@@ -2,7 +2,7 @@
 RAG (Retrieval-Augmented Generation) pipeline.
 
 Orchestrates the full flow: question → embed → search → prompt → Claude → answer.
-This is the core brain of WiseOldMan.Ai.
+This is the core brain of AskBob.Ai.
 """
 
 import json

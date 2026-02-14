@@ -25,7 +25,7 @@
 
 ### Session: 2026-02-12 — Project Initialization
 
-**Context**: First session. User requested to build WiseOldMan.Ai — an AI-powered RuneLite plugin that provides in-game OSRS expert chatbot backed by the full OSRS wiki.
+**Context**: First session. User requested to build AskBob.Ai — an AI-powered RuneLite plugin that provides in-game OSRS expert chatbot backed by the full OSRS wiki.
 
 **Work Completed**:
 - Full Setup Agent interview completed (5 rounds)
@@ -34,7 +34,7 @@
 - Agent team assembled: 16 agents (7 core + 7 domain + 2 custom)
 - Custom agents created: RuneLite Plugin Specialist, AI/RAG Engineer
 - All documentation populated with real project content
-- Plugin named: WiseOldMan.Ai
+- Plugin named: AskBob.Ai
 - 6-phase roadmap defined
 
 **Decisions Made**:
@@ -43,7 +43,7 @@
 | Python + FastAPI for backend | Best AI/scraping ecosystem | docs/DECISIONS.md ADR-002 |
 | Claude API for LLM | Superior reasoning for game advice | docs/DECISIONS.md ADR-003 |
 | PostgreSQL + pgvector (Supabase) | Free, production-ready, UPSERT support | docs/DECISIONS.md ADR-004 |
-| Plugin name: WiseOldMan.Ai | OSRS-iconic reference + .Ai suffix | docs/DECISIONS.md ADR-005 |
+| Plugin name: AskBob.Ai | OSRS-iconic reference + .Ai suffix | docs/DECISIONS.md ADR-005 |
 
 **Current State**:
 - Active Phase: Phase 1 — Environment & Project Setup

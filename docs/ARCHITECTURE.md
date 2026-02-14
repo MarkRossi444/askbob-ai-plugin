@@ -26,7 +26,7 @@
 ┌─────────────────────────────────────────────────────────────┐
 │                    OSRS Player (RuneLite)                     │
 │  ┌───────────────────────────────────────────────────────┐  │
-│  │           WiseOldMan.Ai Side Panel Plugin              │  │
+│  │           AskBob.Ai Side Panel Plugin              │  │
 │  │  ┌─────────────┐  ┌──────────────────────────────┐   │  │
 │  │  │  Chat Input  │  │  Chat Response Display       │   │  │
 │  │  └──────┬──────┘  └──────────────▲───────────────┘   │  │
@@ -81,7 +81,7 @@
 ## Directory Structure
 
 ```
-WiseOldMan.Ai/
+AskBob.Ai/
 ├── CLAUDE.md
 ├── README.md
 ├── .claude/
@@ -107,14 +107,14 @@ WiseOldMan.Ai/
 │   └── src/
 │       └── main/
 │           ├── java/
-│           │   └── com/wiseoldman/
-│           │       ├── WiseOldManPlugin.java
-│           │       ├── WiseOldManConfig.java
-│           │       ├── WiseOldManPanel.java
+│           │   └── com/askbob/
+│           │       ├── AskBobPlugin.java
+│           │       ├── AskBobConfig.java
+│           │       ├── AskBobPanel.java
 │           │       └── api/
-│           │           └── WiseOldManApiClient.java
+│           │           └── AskBobApiClient.java
 │           └── resources/
-│               └── com/wiseoldman/
+│               └── com/askbob/
 │                   └── icon.png
 ├── backend/                         # Python FastAPI backend
 │   ├── pyproject.toml

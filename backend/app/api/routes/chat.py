@@ -24,7 +24,7 @@ def _get_request_id(request: Request) -> str:
 @router.post("/chat", response_model=ChatResponse)
 async def chat(chat_request: ChatRequest, request: Request):
     """
-    Ask the Wise Old Man a question about OSRS.
+    Ask Bob the Cat a question about OSRS.
 
     Returns a complete response with sources. For streaming responses,
     use POST /api/chat/stream instead.
@@ -82,7 +82,7 @@ async def chat(chat_request: ChatRequest, request: Request):
 @router.post("/chat/stream")
 async def chat_stream(chat_request: ChatRequest, request: Request):
     """
-    Ask the Wise Old Man a question — streaming response.
+    Ask Bob the Cat a question — streaming response.
 
     Returns a Server-Sent Events stream with:
     - sources event (wiki pages used)

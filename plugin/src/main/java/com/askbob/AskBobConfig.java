@@ -1,16 +1,16 @@
-package com.wiseoldman;
+package com.askbob;
 
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
 
-@ConfigGroup("wiseoldmanai")
-public interface WiseOldManConfig extends Config
+@ConfigGroup("askbobai")
+public interface AskBobConfig extends Config
 {
     @ConfigItem(
         keyName = "apiUrl",
         name = "API URL",
-        description = "The URL of the WiseOldMan.Ai backend API. For production, set to your deployed server URL (e.g. https://api.wiseoldman.ai)",
+        description = "The URL of the AskBob.Ai backend API. For production, set to your deployed server URL (e.g. https://api.askbob.ai)",
         position = 1
     )
     default String apiUrl()

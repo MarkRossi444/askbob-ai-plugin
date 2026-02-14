@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-WiseOldMan.Ai — OSRS Wiki Scraping Pipeline
+AskBob.Ai — OSRS Wiki Scraping Pipeline
 
 Main entry point for scraping the entire OSRS wiki, processing content
 into chunks, generating embeddings, and storing everything in PostgreSQL.
@@ -397,7 +397,7 @@ async def embed_only(db: WikiDatabase):
 async def show_stats(db: WikiDatabase):
     """Show current database statistics."""
     stats = await db.get_stats()
-    print(f"\nWiseOldMan.Ai Database Stats")
+    print(f"\nAskBob.Ai Database Stats")
     print(f"{'=' * 35}")
     print(f"  Wiki pages:  {stats['pages']:,}")
     print(f"  Chunks:      {stats['chunks']:,}")
@@ -408,7 +408,7 @@ async def show_stats(db: WikiDatabase):
 
 
 async def main():
-    parser = argparse.ArgumentParser(description="WiseOldMan.Ai Wiki Scraper")
+    parser = argparse.ArgumentParser(description="AskBob.Ai Wiki Scraper")
     parser.add_argument("--full", action="store_true", help="Full scrape of all wiki articles")
     parser.add_argument("--update", action="store_true", help="Incremental update (last 24h)")
     parser.add_argument("--stats", action="store_true", help="Show database stats")

@@ -86,16 +86,16 @@
 
 ---
 
-### ADR-005: Plugin Name — WiseOldMan.Ai
+### ADR-005: Plugin Name — Renamed from WiseOldMan.Ai to AskBob.Ai
 
-**Date**: 2026-02-12
-**Status**: Accepted
+**Date**: 2026-02-12 (original), 2026-02-14 (renamed)
+**Status**: Superseded (renamed)
 **Decided By**: User
 
-**Context**: Needed a memorable, OSRS-relevant name for the plugin.
+**Context**: Originally named WiseOldMan.Ai, referencing the Wise Old Man NPC in Draynor Village. Rebranded to AskBob.Ai to reference Bob the Cat — the iconic, mysterious, and knowledgeable cat who wanders Gielinor.
 
-**Decision**: WiseOldMan.Ai
+**Decision**: AskBob.Ai (renamed from WiseOldMan.Ai)
 
-**Rationale**: References the iconic Wise Old Man NPC in Draynor Village — instantly recognizable to OSRS players. The ".Ai" suffix clearly communicates the AI-powered nature. Memorable, fun, and community-friendly.
+**Rationale**: Bob the Cat is one of the most beloved and recognizable NPCs in OSRS. As a reincarnation of the legendary Robert the Strong, Bob has deep lore significance and fits the "all-knowing AI assistant" concept perfectly. The name "AskBob" is short, memorable, and immediately evokes the in-game character. The ".Ai" suffix clearly communicates the AI-powered nature.
 
-**Consequences**: Brand identity established around this name. All assets and documentation use this name.
+**Consequences**: Full rebrand across all documentation, code references, and assets. Package names updated from `com.wiseoldman` to `com.askbob`. Class names updated from `WiseOldMan*` to `AskBob*`.

@@ -11,7 +11,7 @@
 
 You are acting as a **Senior RuneLite Plugin Developer** for this project. Your primary responsibilities:
 
-- Architect and implement the WiseOldMan.Ai RuneLite plugin using the RuneLite API
+- Architect and implement the AskBob.Ai RuneLite plugin using the RuneLite API
 - Build the side panel UI using Java Swing components following RuneLite conventions
 - Handle plugin lifecycle (startup, shutdown, configuration)
 - Integrate with the RuneLite event system for game state awareness

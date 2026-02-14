@@ -32,7 +32,7 @@ Categories: `Added`, `Changed`, `Fixed`, `Removed`, `Infrastructure`, `Documenta
 - CLAUDE.md configured with project state (Setup Agent)
 - PROJECT.md populated with full project definition (Setup Agent)
 - ARCHITECTURE.md populated with tech stack and system diagram (Setup Agent)
-- BRAND.md populated with WiseOldMan.Ai brand guidelines (Setup Agent)
+- BRAND.md populated with AskBob.Ai brand guidelines (Setup Agent)
 - ROADMAP.md populated with 6-phase plan (Setup Agent)
 - WORKFLOWS.md populated with project-specific agent workflows (Setup Agent)
 - DECISIONS.md populated with 5 initial ADRs (Setup Agent)

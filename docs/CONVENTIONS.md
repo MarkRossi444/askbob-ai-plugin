@@ -1,6 +1,6 @@
 # Project Conventions
 
-> Naming, coding, and style standards for WiseOldMan.Ai.
+> Naming, coding, and style standards for AskBob.Ai.
 
 ---
 
@@ -8,10 +8,10 @@
 
 | Context | Convention | Example |
 |---------|-----------|---------|
-| Java Classes | PascalCase | `WiseOldManPlugin`, `WiseOldManPanel` |
+| Java Classes | PascalCase | `AskBobPlugin`, `AskBobPanel` |
 | Java Methods/Variables | camelCase | `sendChatMessage`, `userQuery` |
 | Java Constants | SCREAMING_SNAKE_CASE | `MAX_MESSAGE_LENGTH`, `API_BASE_URL` |
-| Java Packages | lowercase dot-separated | `com.wiseoldman.api` |
+| Java Packages | lowercase dot-separated | `com.askbob.api` |
 | Python Modules | snake_case | `rag_pipeline.py`, `wiki_spider.py` |
 | Python Functions/Variables | snake_case | `get_wiki_content`, `query_embedding` |
 | Python Classes | PascalCase | `ChatService`, `WikiSpider` |
@@ -85,12 +85,12 @@ docs/[what-changed]
 
 ### Plugin (Java)
 ```
-plugin/src/main/java/com/wiseoldman/
-├── WiseOldManPlugin.java      # Main plugin class
-├── WiseOldManConfig.java      # Config interface
-├── WiseOldManPanel.java       # Side panel UI
+plugin/src/main/java/com/askbob/
+├── AskBobPlugin.java      # Main plugin class
+├── AskBobConfig.java      # Config interface
+├── AskBobPanel.java       # Side panel UI
 └── api/
-    └── WiseOldManApiClient.java  # Backend API client
+    └── AskBobApiClient.java  # Backend API client
 ```
 
 ### Backend (Python)
@@ -119,4 +119,4 @@ scraper/osrs_scraper/
 
 | Date | Change | Author |
 |------|--------|--------|
-| 2026-02-12 | Initial conventions for WiseOldMan.Ai | Setup Agent |
+| 2026-02-12 | Initial conventions for AskBob.Ai | Setup Agent |

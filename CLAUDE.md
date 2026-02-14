@@ -6,7 +6,7 @@
 
 ## System State
 
-**Project Name**: `WiseOldMan.Ai`
+**Project Name**: `AskBob.Ai`
 **Project Type**: `custom`
 **Initialized**: `true`
 **Setup Date**: `2026-02-12`

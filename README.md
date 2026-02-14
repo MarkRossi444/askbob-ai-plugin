@@ -1,4 +1,4 @@
-# WiseOldMan.Ai
+# AskBob.Ai
 
 > Your in-game OSRS expert. An AI-powered RuneLite plugin that gives players instant, expert-level game knowledge backed by the entire OSRS wiki.
 
@@ -6,7 +6,7 @@
 
 ## What Is This?
 
-WiseOldMan.Ai is a RuneLite side-panel plugin that provides an AI chatbot powered by the full Old School RuneScape wiki. Ask any question about OSRS — quests, skills, money-making, boss mechanics, item stats, drop tables — and get an accurate, contextual answer without leaving the game.
+AskBob.Ai is a RuneLite side-panel plugin that provides an AI chatbot powered by the full Old School RuneScape wiki. Ask any question about OSRS — quests, skills, money-making, boss mechanics, item stats, drop tables — and get an accurate, contextual answer without leaving the game.
 
 ### Features
 - **Full OSRS Wiki Knowledge** — Backed by 25,000+ scraped and indexed wiki pages
@@ -32,7 +32,7 @@ WiseOldMan.Ai is a RuneLite side-panel plugin that provides an AI chatbot powere
 ## Project Structure
 
 ```
-WiseOldMan.Ai/
+AskBob.Ai/
 ├── plugin/          # RuneLite Java plugin
 ├── backend/         # Python FastAPI backend
 ├── scraper/         # OSRS Wiki scraping pipeline
@@ -53,7 +53,7 @@ WiseOldMan.Ai/
 ```bash
 # Clone the repository
 git clone [repo-url]
-cd WiseOldMan.Ai
+cd AskBob.Ai
 
 # Set up environment variables
 cp .env.example .env

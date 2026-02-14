@@ -1,6 +1,6 @@
 # Agent Registry
 
-> Master list of all active agents, their capabilities, and status for WiseOldMan.Ai.
+> Master list of all active agents, their capabilities, and status for AskBob.Ai.
 
 ---
 
@@ -18,7 +18,7 @@
 | Agent Builder | `.claude/agents/core/agent-builder.md` | ✅ Active | Dynamic agent creation |
 | Documentation | `.claude/agents/core/documentation.md` | ✅ Active | Doc maintenance & session logging |
 
-### Domain Agents (Activated for WiseOldMan.Ai)
+### Domain Agents (Activated for AskBob.Ai)
 
 | Agent | File | Status | Activated For |
 |-------|------|--------|---------------|
@@ -33,7 +33,7 @@
 | Mobile Developer | `.claude/agents/domain/mobile-developer.md` | ⬜ Inactive | — (v2 backlog) |
 | API Architect | `.claude/agents/domain/api-architect.md` | ✅ Active | Plugin ↔ Backend API contract design |
 
-### Generated Agents (Custom-Built for WiseOldMan.Ai)
+### Generated Agents (Custom-Built for AskBob.Ai)
 
 | Agent | File | Created | Purpose |
 |-------|------|---------|---------|

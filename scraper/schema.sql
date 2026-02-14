@@ -1,4 +1,4 @@
--- WiseOldMan.Ai Database Schema
+-- AskBob.Ai Database Schema
 -- Run this in Supabase SQL Editor to set up the database
 
 -- Enable pgvector extension

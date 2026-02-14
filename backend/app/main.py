@@ -1,5 +1,5 @@
 """
-WiseOldMan.Ai — FastAPI Backend
+AskBob.Ai — FastAPI Backend
 
 Main application entry point. Sets up the database pool, RAG pipeline,
 and API routes. The RAG pipeline is initialized once at startup and
@@ -63,7 +63,7 @@ async def lifespan(app: FastAPI):
 
     _startup_time = time.time()
     _stats_tracker = StatsTracker()
-    logger.info("Starting WiseOldMan.Ai backend...")
+    logger.info("Starting AskBob.Ai backend...")
 
     # Create database connection pool with pgvector registered on every connection
     async def _init_conn(conn):
@@ -92,7 +92,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="WiseOldMan.Ai API",
+    title="AskBob.Ai API",
     description="AI-powered OSRS expert chatbot backend",
     version="0.1.0",
     lifespan=lifespan,
@@ -154,7 +154,7 @@ async def health_check():
 
     return {
         "status": "ok",
-        "service": "WiseOldMan.Ai",
+        "service": "AskBob.Ai",
         "rag_ready": _rag_pipeline is not None and stats["embeddings"] > 0,
         "stats": stats,
         "embedding_coverage_pct": coverage_pct,
