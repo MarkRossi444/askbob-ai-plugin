@@ -1,0 +1,45 @@
+appId: com.askbob.overlay
+productName: AskBob.Ai
+copyright: Copyright © 2026 AskBob.Ai
+
+publish:
+  provider: github
+  owner: MarkRossi444
+  repo: askbob-ai-plugin
+
+directories:
+  output: dist
+
+files:
+  - "**/*"
+  - "!dist/**"
+
+mac:
+  category: public.app-category.utilities
+  icon: assets/icon.png
+  target:
+    - dmg
+    - zip
+
+dmg:
+  title: AskBob.Ai
+  contents:
+    - x: 130
+      y: 220
+    - x: 410
+      y: 220
+      type: link
+      path: /Applications
+
+win:
+  icon: assets/icon.ico
+  target:
+    - nsis
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  installerIcon: assets/icon.ico
+  uninstallerIcon: assets/icon.ico
+  createDesktopShortcut: true
+  createStartMenuShortcut: true

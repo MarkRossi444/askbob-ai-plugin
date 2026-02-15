@@ -24,7 +24,8 @@ class Settings(BaseSettings):
     rate_limit_per_minute: int = 20
 
     # CORS — comma-separated origins, or "*" for open access
-    # For production, replace with specific domains (e.g. "https://askbob.ai")
+    # For production, replace with specific domains:
+    #   "https://askbob.ai,app://askbob" (web + Electron overlay)
     allowed_origins: str = "*"
 
     class Config:

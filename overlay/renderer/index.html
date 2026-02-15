@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AskBob.Ai</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-wrapper">
+        <!-- Custom Titlebar (draggable) -->
+        <div class="titlebar">
+            <span class="titlebar-title">AskBob.Ai</span>
+            <div class="titlebar-spacer"></div>
+            <button class="titlebar-btn" id="settingsBtn" title="Settings">&#9881;</button>
+            <button class="titlebar-btn" id="minimizeBtn" title="Hide (Ctrl+Shift+B)">&#8722;</button>
+            <button class="titlebar-btn close" id="closeBtn" title="Hide to tray">&#10005;</button>
+        </div>
+
+        <!-- Connection status bar -->
+        <div class="connection-bar" id="connectionBar">Connecting to backend...</div>
+
+        <!-- Update banner -->
+        <div class="update-banner" id="updateBanner">Update ready — click to restart</div>
+
+        <!-- Player context banner -->
+        <div class="player-banner" id="playerBanner">
+            <span class="player-name" id="playerName"></span>
+            <span class="player-type" id="playerType"></span>
+            <span class="player-stats" id="playerStats"></span>
+        </div>
+
+        <div class="panel-container">
+            <header>
+                <div class="header-icon"><img src="../assets/icon.png" alt="Bob the Cat"></div>
+                <h1>AskBob.Ai</h1>
+                <div class="header-right">
+                    <button class="hdr-btn" id="themeBtn" title="Toggle theme">Theme</button>
+                    <button class="hdr-btn" id="soundBtn" title="Toggle sound">Sound</button>
+                    <button class="hdr-btn" id="copyBtn" title="Copy chat">Copy</button>
+                    <button class="hdr-btn clear-btn" id="clearBtn" title="Clear chat">Clear</button>
+                </div>
+            </header>
+
+            <div class="chat-wrapper">
+                <div class="vignette-top"></div>
+                <div id="chat">
+                    <div class="bot-row">
+                        <div class="bot-avatar"><img src="../assets/icon.png" alt="Bob"></div>
+                        <div class="message bot">
+                            <div class="answer">Meow! I'm Bob the Cat — ask me anything about Old School RuneScape.</div>
+                        </div>
+                    </div>
+                    <div id="starterQuestions" class="starter-grid">
+                        <button class="starter-pill" data-q="What are the requirements for Dragon Slayer II?">Dragon Slayer II requirements?</button>
+                        <button class="starter-pill" data-q="What are good mid-level money making methods?">Mid-level money making?</button>
+                        <button class="starter-pill" data-q="How do I get to Fossil Island and what can I do there?">Getting to Fossil Island?</button>
+                        <button class="starter-pill" data-q="What gear should I bring to fight Zulrah?">Zulrah gear setup?</button>
+                        <button class="starter-pill" data-q="Can you explain tick manipulation for skilling?">Tick manipulation explained?</button>
+                        <button class="starter-pill" data-q="What quests do I need for Barrows Gloves?">Barrows Gloves quest reqs?</button>
+                    </div>
+                </div>
+                <div class="vignette-bottom"></div>
+                <button class="scroll-bottom" id="scrollBtn" title="Scroll to bottom"></button>
+            </div>
+
+            <div id="input-area">
+                <textarea id="question" placeholder="Ask about quests, items, bosses, skills..." rows="1"></textarea>
+                <button id="send">Ask</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Keyboard shortcuts overlay -->
+    <div class="shortcuts-overlay" id="shortcutsOverlay">
+        <div class="shortcuts-box">
+            <h3>Keyboard Shortcuts</h3>
+            <div class="shortcut-row"><span>Toggle overlay</span><kbd>Ctrl+Shift+B</kbd></div>
+            <div class="shortcut-row"><span>Clear chat</span><kbd>Ctrl+L</kbd></div>
+            <div class="shortcut-row"><span>Copy chat</span><kbd>Ctrl+Shift+C</kbd></div>
+            <div class="shortcut-row"><span>Cancel / clear input</span><kbd>Escape</kbd></div>
+            <div class="shortcut-row"><span>Show shortcuts</span><kbd>Ctrl+/</kbd></div>
+            <button class="shortcuts-close" id="shortcutsClose">Close (Esc)</button>
+        </div>
+    </div>
+
+    <!-- Settings overlay -->
+    <div class="settings-overlay" id="settingsOverlay">
+        <div class="settings-panel">
+            <h3>Settings</h3>
+
+            <div class="setting-group">
+                <label for="settingRsn">RuneScape Name (RSN)</label>
+                <input type="text" id="settingRsn" placeholder="e.g. B0bTheCat" autocomplete="off">
+                <div class="setting-hint">Used to look up your stats from the OSRS Hiscores</div>
+            </div>
+
+            <div class="setting-group">
+                <label for="settingGameMode">Game Mode</label>
+                <select id="settingGameMode">
+                    <option value="main">Main</option>
+                    <option value="ironman">Ironman</option>
+                    <option value="hardcore_ironman">Hardcore Ironman</option>
+                    <option value="ultimate_ironman">Ultimate Ironman</option>
+                    <option value="group_ironman">Group Ironman</option>
+                </select>
+                <div class="setting-hint">Auto-detected from hiscores if RSN is set</div>
+            </div>
+
+            <div class="setting-group">
+                <label for="settingBackendUrl">Backend URL</label>
+                <input type="url" id="settingBackendUrl" placeholder="http://127.0.0.1:8001">
+            </div>
+
+            <div class="setting-group">
+                <label>Opacity</label>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <input type="range" id="settingOpacity" min="0.5" max="1" step="0.05" value="0.95">
+                    <span class="opacity-value" id="opacityValue">95%</span>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <label>Theme</label>
+                <select id="settingTheme">
+                    <option value="dark">Dark (RuneLite)</option>
+                    <option value="light">Light (Parchment)</option>
+                </select>
+            </div>
+
+            <div class="setting-group">
+                <div class="toggle-row">
+                    <label style="margin-bottom:0">Start on boot</label>
+                    <div class="toggle-switch" id="settingBoot"></div>
+                </div>
+            </div>
+
+            <div class="settings-actions">
+                <button class="btn-cancel" id="settingsCancel">Cancel</button>
+                <button class="btn-save" id="settingsSave">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
